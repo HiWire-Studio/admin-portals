@@ -1,0 +1,19 @@
+{
+    "Group": "HiWire",
+    "Name": "AdminPortals",
+    "Version": "0.1.0",
+    "Authors": [
+        {
+            "Name": "HiWire-Nick",
+            "Email": "nick@hiwire.studio",
+            "Url": "https://www.hiwire.studio"
+        }
+    ],
+    "Website": "https://www.hiwire.studio",
+    "Main": "studio.hiwire.adminportals.AdminPortalsPlugin",
+    "ServerVersion": "*",
+    "OptionalDependencies": {
+        "Hytale:PermissionsModule": "*"
+    },
+    "IncludesAssetPack": true
+}

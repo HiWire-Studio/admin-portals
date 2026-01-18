@@ -1,0 +1,83 @@
+{
+  "TranslationProperties": {
+    "Name": "HiWire.AdminPortals.Items.StandalonePortal_Forgotten_Temple.name",
+    "Description": "HiWire.AdminPortals.Items.StandalonePortal_Forgotten_Temple.description"
+  },
+  "Icon": "Icons/ItemsGenerated/Portal_Return.png",
+  "Categories": [
+    "Blocks.Portals"
+  ],
+  "BlockType": {
+    "AmbientSoundEventId": "SFX_Portal_Neutral",
+    "DrawType": "Model",
+    "Material": "Empty",
+    "Opacity": "Transparent",
+    "IgnoreSupportWhenPlaced": true,
+    "CustomModel": "Blocks/HiWire_AdminPortals_PortalEffect.blockymodel",
+    "CustomModelTexture": [
+      {
+        "Texture": "Blocks/HiWire_AdminPortals_PortalEffect.png",
+        "Weight": 1
+      }
+    ],
+    "InteractionHitboxType": "HiWire_AdminPortals_StandalonePortal_PortalHitbox",
+    "HitboxType": "HiWire_AdminPortals_StandalonePortal_PortalHitbox",
+    "BlockParticleSetId": "Stone",
+    "BlockSoundSetId": "Stone",
+    "VariantRotation": "NESW",
+    "BlockEntity": {},
+    "Gathering": {
+      "Breaking": {
+        "GatherType": "Unbreakable"
+      }
+    },
+    "Particles": [
+      {
+        "SystemId": "MagicPortal_ForgottenTemple",
+        "PositionOffset": {
+          "Y": 1.65
+        }
+      }
+    ],
+    "Interactions": {
+      "Use": {
+        "Interactions": [
+          {
+            "Type": "HiWire_AdminPortals_PortalInteraction"
+          }
+        ]
+      },
+      "Collision": {
+        "Cooldown": {
+          "Id": "HiWire_AdminPortals_PortalUseCooldown",
+          "Cooldown": 2
+        },
+        "Interactions": [
+          {
+            "Type": "HiWire_AdminPortals_PortalInteraction"
+          }
+        ]
+      }
+    }
+  },
+  "PlayerAnimationsId": "Block",
+  "Tags": {
+    "Type": [
+      "Portal"
+    ]
+  },
+  "Quality": "Technical",
+  "IconProperties": {
+    "Scale": 0.35,
+    "Rotation": [
+      22.5,
+      45.0,
+      22.5
+    ],
+    "Translation": [
+      0.0,
+      -13.5
+    ]
+  },
+  "ItemSoundSetId": "ISS_Blocks_Stone"
+}
