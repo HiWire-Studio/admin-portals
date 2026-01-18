@@ -2,6 +2,8 @@
 
 A custom portal management plugin for Hytale single- and multiplayer by HiWire Studio
 
+![Project Logo Banner](docs/images/project-logo-banner.png)
+
 ## Features
 
 - **Configurable Portals** - Place portal blocks that execute commands when players interact with them
