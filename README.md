@@ -10,7 +10,7 @@ A custom portal management plugin for Hytale single- and multiplayer by HiWire S
 - **Multiple Portal Styles** - Choose between Forgotten Temple (blue) and Void (purple) portal variants
 - **Command Execution Modes** - Execute commands as the server or as the interacting player
 - **Dynamic Placeholders** - Use placeholders in commands to insert player/location data
-- **Map Markers** - Optionally display portals on the world map with custom icons and labels
+- **Map Markers** - Optionally display portals on the world map and compass with custom icons and labels
 - **Multilingual** - Supports English (en-US), German (de-DE) and many more (if added)
 - **Customizable** - Override translations, UI definitions, and assets
 
@@ -66,7 +66,8 @@ To configure portals, you must first enter configuration mode by running:
 /adminportals configmode toggle
 ```
 
-While in configuration mode, interacting with a portal block will open the configuration UI instead of activating the portal. Run the command again to exit configuration mode.
+While in configuration mode, interacting with a portal block using the interact key will open the configuration UI.
+Run the command again to exit configuration mode.
 
 ### Configuration UI
 
@@ -112,6 +113,8 @@ Use these placeholders in portal commands. They are replaced with actual values 
 Executed as server / command sender:
 ```
 tp {PlayerUsername} 100 64 200
+```
+```
 say Player {PlayerUsername} ({PlayerUuid}) has entered a portal at ({PosX}, {PosY}, {PosZ}) in world {WorldName}
 ```
 
