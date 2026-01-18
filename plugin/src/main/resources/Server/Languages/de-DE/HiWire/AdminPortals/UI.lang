@@ -1,0 +1,15 @@
+PortalConfigurationPage.Title = Portalkonfiguration
+PortalConfigurationPage.Type = Typ
+PortalConfigurationPage.Command = Befehl
+PortalConfigurationPage.Command.Placeholder = tp {PlayerUsername} 0 100 0
+PortalConfigurationPage.ExecuteAs = Ausführen als
+PortalConfigurationPage.MapMarkerText = Kartenmarkierung Text
+PortalConfigurationPage.MapMarkerText.Placeholder = Leer lassen zum Ausblenden
+PortalConfigurationPage.MapMarkerIcon = Kartenmarkierung Symbol
+PortalConfigurationPage.MapMarkerIcon.Placeholder = Warp.png
+PortalConfigurationPage.Save = SPEICHERN
+
+PortalType.Command = Befehl
+
+CommandSender.Server = Server
+CommandSender.Player = Spieler

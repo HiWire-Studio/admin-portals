@@ -1,0 +1,144 @@
+$C = "../Common.ui";
+
+// Height for row elements
+@RowHeight = 42;
+
+// Bold dropdown style
+@BoldDropdownStyle = DropdownBoxStyle(
+  ...$C.@DefaultDropdownBoxStyle,
+  LabelStyle: (...$C.@DefaultDropdownBoxLabelStyle, RenderBold: true),
+  PanelAlign: Right
+);
+
+// Label container with brighter background (using InputBox texture for rounded corners)
+@SettingLabel = Group {
+  Anchor: (Width: 160, Height: @RowHeight, Right: 8);
+  Background: (TexturePath: "../Common/OptionBackgroundPatch.png", Border: 16);
+  Padding: (Left: 16);
+  LayoutMode: Left;
+
+  Label {
+    Text: @Text;
+    Style: (...$C.@DefaultLabelStyle, VerticalAlignment: Center);
+  }
+};
+
+// Setting row container
+@SettingRow = Group {
+  LayoutMode: Left;
+  Anchor: (Bottom: 6);
+};
+
+$C.@PageOverlay {
+  LayoutMode: Middle;
+
+  $C.@DecoratedContainer {
+    Anchor: (Width: 500);
+
+    #Title {
+      $C.@Title {
+        @Text = %HiWire.AdminPortals.UI.PortalConfigurationPage.Title;
+      }
+    }
+
+    #Content {
+      LayoutMode: Top;
+      Padding: (Full: 16);
+
+      // Type selector
+      @SettingRow #Type {
+        @SettingLabel {
+          @Text = %HiWire.AdminPortals.UI.PortalConfigurationPage.Type;
+        }
+
+        DropdownBox #Input {
+          Anchor: (Height: @RowHeight);
+          FlexWeight: 1;
+          Style: @BoldDropdownStyle;
+        }
+      }
+
+      // Command section (visible when Type = Command)
+      Group #CommandSection {
+        LayoutMode: Top;
+
+        // Command input
+        @SettingRow #Command {
+          @SettingLabel {
+            @Text = %HiWire.AdminPortals.UI.PortalConfigurationPage.Command;
+          }
+
+          TextField #Input {
+            Anchor: (Height: @RowHeight);
+            FlexWeight: 1;
+            PlaceholderText: %HiWire.AdminPortals.UI.PortalConfigurationPage.Command.Placeholder;
+            Style: $C.@DefaultInputFieldStyle;
+            PlaceholderStyle: $C.@DefaultInputFieldPlaceholderStyle;
+            Background: $C.@InputBoxBackground;
+            Padding: (Horizontal: 10);
+          }
+        }
+
+        // Command sender selector
+        @SettingRow #CommandSender {
+          @SettingLabel {
+            @Text = %HiWire.AdminPortals.UI.PortalConfigurationPage.ExecuteAs;
+          }
+
+          DropdownBox #Input {
+            Anchor: (Height: @RowHeight);
+            FlexWeight: 1;
+            Style: @BoldDropdownStyle;
+          }
+        }
+      }
+
+      // Map Marker section
+      @SettingRow #MapMarkerName {
+        @SettingLabel {
+          @Text = %HiWire.AdminPortals.UI.PortalConfigurationPage.MapMarkerText;
+        }
+
+        TextField #Input {
+          Anchor: (Height: @RowHeight);
+          FlexWeight: 1;
+          PlaceholderText: %HiWire.AdminPortals.UI.PortalConfigurationPage.MapMarkerText.Placeholder;
+          Style: $C.@DefaultInputFieldStyle;
+          PlaceholderStyle: $C.@DefaultInputFieldPlaceholderStyle;
+          Background: $C.@InputBoxBackground;
+          Padding: (Horizontal: 10);
+        }
+      }
+
+      // Map Marker Icon
+      @SettingRow #MapMarkerIcon {
+        @SettingLabel {
+          @Text = %HiWire.AdminPortals.UI.PortalConfigurationPage.MapMarkerIcon;
+        }
+
+        TextField #Input {
+          Anchor: (Height: @RowHeight);
+          FlexWeight: 1;
+          PlaceholderText: %HiWire.AdminPortals.UI.PortalConfigurationPage.MapMarkerIcon.Placeholder;
+          Style: $C.@DefaultInputFieldStyle;
+          PlaceholderStyle: $C.@DefaultInputFieldPlaceholderStyle;
+          Background: $C.@InputBoxBackground;
+          Padding: (Horizontal: 10);
+        }
+      }
+
+      // Spacer
+      Group {
+        Anchor: (Height: 12);
+      }
+
+      // Save button
+      $C.@TextButton #SaveButton {
+        @Anchor = (Height: @RowHeight);
+        Text: %HiWire.AdminPortals.UI.PortalConfigurationPage.Save;
+      }
+    }
+  }
+}
+
+$C.@BackButton {}
