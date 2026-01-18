@@ -136,17 +136,17 @@ Players can activate a configured portal in two ways:
 
 If a portal has not been configured yet, the player will receive a chat message indicating that the portal is not configured.
 
-### Portal Base (Two-Piece)
+### Portal Base (Two-Piece Setup)
 
-A platform with a separate portal effect block on top:
+The Portal Base is a decorative pad that serves as a foundation for portal effects. The portal base portals are vertically offset to sit perfectly on top of the base.
 
-- `HiWire_AdminPortals_PortalBase` - The base platform
-- `HiWire_AdminPortals_PortalBase_Portal_ForgottenTemple` - Blue portal effect
-- `HiWire_AdminPortals_PortalBase_Portal_Void` - Purple portal effect
+- `HiWire_AdminPortals_PortalBase` - The base pad
+- `HiWire_AdminPortals_PortalBase_Portal_ForgottenTemple` - Blue portal effect (designed to sit on the base)
+- `HiWire_AdminPortals_PortalBase_Portal_Void` - Purple portal effect (designed to sit on the base)
 
 ### Standalone Portals
 
-Single-block portals:
+Self-contained portal blocks that are aligned with the world grid. The bottom of the portal aligns with the block boundary, so they sit flush on the ground without floating like portals on top of a base.
 
 - `HiWire_AdminPortals_StandalonePortal_ForgottenTemple` - Blue standalone portal
 - `HiWire_AdminPortals_StandalonePortal_Void` - Purple standalone portal
