@@ -41,6 +41,10 @@
     ],
     "Interactions": {
       "Use": {
+        "Cooldown": {
+          "Id": "HiWire_AdminPortals_PortalUseCooldown",
+          "Cooldown": 1
+        },
         "Interactions": [
           {
             "Type": "HiWire_AdminPortals_PortalInteraction"
@@ -50,7 +54,7 @@
       "Collision": {
         "Cooldown": {
           "Id": "HiWire_AdminPortals_PortalUseCooldown",
-          "Cooldown": 2
+          "Cooldown": 1
         },
         "Interactions": [
           {
