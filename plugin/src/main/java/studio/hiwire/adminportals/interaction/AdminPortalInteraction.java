@@ -9,10 +9,13 @@ import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.logger.HytaleLogger;
 import com.hypixel.hytale.math.util.ChunkUtil;
 import com.hypixel.hytale.math.vector.Vector3i;
+import com.hypixel.hytale.protocol.InteractionState;
 import com.hypixel.hytale.protocol.InteractionType;
+import com.hypixel.hytale.protocol.WaitForDataFrom;
 import com.hypixel.hytale.server.core.Message;
 import com.hypixel.hytale.server.core.command.system.CommandManager;
 import com.hypixel.hytale.server.core.console.ConsoleSender;
+import com.hypixel.hytale.server.core.entity.InteractionChain;
 import com.hypixel.hytale.server.core.entity.InteractionContext;
 import com.hypixel.hytale.server.core.entity.entities.Player;
 import com.hypixel.hytale.server.core.inventory.ItemStack;
@@ -37,6 +40,7 @@ import studio.hiwire.adminportals.placeholder.PlaceholderContext;
 public class AdminPortalInteraction extends SimpleBlockInteraction {
 
   public static final HytaleLogger LOGGER = HytaleLogger.forEnclosingClass();
+
   public static final BuilderCodec<AdminPortalInteraction> CODEC;
 
   // Message IDs
@@ -54,6 +58,12 @@ public class AdminPortalInteraction extends SimpleBlockInteraction {
       @NullableDecl ItemStack itemStack,
       @NonNullDecl Vector3i pos,
       @NonNullDecl CooldownHandler cooldownHandler) {
+
+    // Necessary for now as Use interactions don't apply cooldowns
+    if (interactionType == InteractionType.Use
+        && checkHasAndApplyCooldown(interactionContext.getChain(), cooldownHandler)) {
+      return;
+    }
 
     final var actorRef = interactionContext.getEntity();
     final var playerRef = commandBuffer.getComponent(actorRef, PlayerRef.getComponentType());
@@ -130,6 +140,39 @@ public class AdminPortalInteraction extends SimpleBlockInteraction {
     } else {
       LOGGER.at(Level.WARNING).log("Unsupported portal type: %s", portalConfig.getType());
     }
+  }
+
+  private boolean checkHasAndApplyCooldown(
+      InteractionChain chain, @NonNullDecl CooldownHandler cooldownHandler) {
+    if (chain == null) {
+      return false;
+    }
+
+    // Check root-level cooldown if configured
+    // For Use interactions, the root-level cooldown is not automatically checked
+    // (unlike Collision which goes through executeChain0), so we handle it manually.
+    final var rootInteraction = chain.getRootInteraction();
+    final var cooldownConfig = rootInteraction.getCooldown();
+
+    if (cooldownConfig != null) {
+      String cooldownId =
+          cooldownConfig.cooldownId != null ? cooldownConfig.cooldownId : rootInteraction.getId();
+      float cooldownTime = cooldownConfig.cooldown;
+      float[] chargeTimes =
+          cooldownConfig.chargeTimes != null
+              ? cooldownConfig.chargeTimes
+              : new float[] {cooldownTime};
+      boolean interruptRecharge = cooldownConfig.interruptRecharge;
+
+      final var forceCooldownCreation = true;
+      var cooldown =
+          cooldownHandler.getCooldown(
+              cooldownId, cooldownTime, chargeTimes, forceCooldownCreation, interruptRecharge);
+      // cooldown cannot be null
+      return cooldown.hasCooldown(true);
+    }
+
+    return false;
   }
 
   @Override
