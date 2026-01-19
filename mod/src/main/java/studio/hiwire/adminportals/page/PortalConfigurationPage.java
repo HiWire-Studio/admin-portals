@@ -193,7 +193,7 @@ public class PortalConfigurationPage
             .hasPermission(playerRef.getUuid(), Permissions.PORTAL_CONFIG_EDIT)) {
           playerRef.sendMessage(
               Message.translation(MSG_NO_PERMISSION)
-                  .param(Params.PLUGIN_PREFIX, PREFIX)
+                  .param(Params.MOD_PREFIX, PREFIX)
                   .param(Params.PERMISSION, Permissions.PORTAL_CONFIG_EDIT));
           return;
         }
@@ -281,7 +281,7 @@ public class PortalConfigurationPage
       playerRef.sendMessage(
           Message.translation(MSG_CMD_NOT_SAVED)
               .param(Params.DETAIL, Message.translation(MSG_CMD_NOT_SAVED_DETAIL_CMD_MISSING))
-              .param(Params.PLUGIN_PREFIX, PREFIX));
+              .param(Params.MOD_PREFIX, PREFIX));
       return;
     }
 
@@ -290,7 +290,7 @@ public class PortalConfigurationPage
           Message.translation(MSG_CMD_NOT_SAVED_REASON)
               .param(
                   Params.DETAIL, Message.translation(MSG_CMD_NOT_SAVED_DETAIL_EXECUTE_AS_MISSING))
-              .param(Params.PLUGIN_PREFIX, PREFIX));
+              .param(Params.MOD_PREFIX, PREFIX));
       return;
     }
 
@@ -306,8 +306,7 @@ public class PortalConfigurationPage
     // Handle BlockMapMarker
     updateBlockMapMarker(blockStore, data.mapMarkerName, data.mapMarkerIcon);
 
-    playerRef.sendMessage(
-        Message.translation(MSG_PORTAL_SAVED).param(Params.PLUGIN_PREFIX, PREFIX));
+    playerRef.sendMessage(Message.translation(MSG_PORTAL_SAVED).param(Params.MOD_PREFIX, PREFIX));
 
     // Check for unknown placeholders in the command
     if (data.command != null && !data.command.isEmpty()) {
@@ -322,7 +321,7 @@ public class PortalConfigurationPage
       if (!missingPlaceholders.isEmpty()) {
         playerRef.sendMessage(
             Message.translation(MSG_UNKNOWN_PLACEHOLDERS)
-                .param(Params.PLUGIN_PREFIX, PREFIX)
+                .param(Params.MOD_PREFIX, PREFIX)
                 .param(Params.PLACEHOLDER_LIST, missingPlaceholders));
       }
     }

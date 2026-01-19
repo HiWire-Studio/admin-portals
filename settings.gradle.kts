@@ -1,3 +1,3 @@
 rootProject.name = "admin-portals"
 
-include("plugin")
+include("mod")

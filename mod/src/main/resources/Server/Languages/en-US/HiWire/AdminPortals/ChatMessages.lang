@@ -1,0 +1,16 @@
+Command.Placeholders.List.NoPlaceHoldersRegistered={ModPrefix} No placeholders registered
+Command.Placeholders.List.Output={ModPrefix} Registered placeholders ({PlaceholderAmount}): {PlaceholderList}
+
+Command.Placeholders.ConfigMode.Toggle.Enabled={ModPrefix} Configuration mode enabled
+Command.Placeholders.ConfigMode.Toggle.Disabled={ModPrefix} Configuration mode disabled
+
+Interaction.Portal.NotConfigured=This portal is not configured
+
+Configuration.Portal.Command.NotSaved={ModPrefix} Portal configuration not saved: {Detail}
+Configuration.Portal.Command.NotSaved.Detail.CommandMissing=Command is empty
+Configuration.Portal.Command.NotSaved.Detail.ExecuteAsMissing=Execute As / CommandSender is missing
+
+Configuration.Portal.Saved={ModPrefix} Portal configuration saved
+Configuration.Portal.UnknownPlaceholders={ModPrefix} Warning: Unknown placeholders in command: {PlaceholderList}
+Configuration.Portal.Edit.NoPermission={ModPrefix} You do not have permission to save portal configurations (missing: {Permission})
+Configuration.Portal.View.NoPermission={ModPrefix} You do not have permission to view portal configurations (missing: {Permission})

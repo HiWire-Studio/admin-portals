@@ -86,7 +86,7 @@ public class AdminPortalInteraction extends SimpleBlockInteraction {
     Ref<ChunkStore> blockEntityRef = chunk.getBlockComponentEntity(pos.x, pos.y, pos.z);
     if (blockEntityRef == null) {
       playerRef.sendMessage(
-          Message.translation(MSG_PORTAL_NOT_CONFIGURED).param(Params.PLUGIN_PREFIX, PREFIX));
+          Message.translation(MSG_PORTAL_NOT_CONFIGURED).param(Params.MOD_PREFIX, PREFIX));
       interactionContext.getState().state = InteractionState.Failed;
       return;
     }
@@ -107,7 +107,7 @@ public class AdminPortalInteraction extends SimpleBlockInteraction {
           .hasPermission(playerRef.getUuid(), Permissions.PORTAL_CONFIG_VIEW)) {
         playerRef.sendMessage(
             Message.translation(MSG_NO_PERMISSION_VIEW)
-                .param(Params.PLUGIN_PREFIX, PREFIX)
+                .param(Params.MOD_PREFIX, PREFIX)
                 .param(Params.PERMISSION, Permissions.PORTAL_CONFIG_VIEW));
         return;
       }
@@ -127,7 +127,7 @@ public class AdminPortalInteraction extends SimpleBlockInteraction {
     if (portalConfig == null) {
       interactionContext.getState().state = InteractionState.Failed;
       playerRef.sendMessage(
-          Message.translation(MSG_PORTAL_NOT_CONFIGURED).param(Params.PLUGIN_PREFIX, PREFIX));
+          Message.translation(MSG_PORTAL_NOT_CONFIGURED).param(Params.MOD_PREFIX, PREFIX));
       return;
     }
 
