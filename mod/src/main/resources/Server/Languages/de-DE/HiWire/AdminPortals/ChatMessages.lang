@@ -1,0 +1,16 @@
+Command.Placeholders.List.NoPlaceHoldersRegistered={ModPrefix} Keine Platzhalter registriert
+Command.Placeholders.List.Output={ModPrefix} Registrierte Platzhalter ({PlaceholderAmount}): {PlaceholderList}
+
+Command.Placeholders.ConfigMode.Toggle.Enabled={ModPrefix} Konfigurationsmodus aktiviert
+Command.Placeholders.ConfigMode.Toggle.Disabled={ModPrefix} Konfigurationsmodus deaktiviert
+
+Interaction.Portal.NotConfigured=Dieses Portal ist nicht konfiguriert
+
+Configuration.Portal.Command.NotSaved={ModPrefix} Portalkonfiguration wurde nicht gespeichert: {Detail}
+Configuration.Portal.Command.NotSaved.Detail.CommandMissing=Befehl fehlt
+Configuration.Portal.Command.NotSaved.Detail.ExecuteAsMissing=Ausführen als / CommandSender fehlt
+
+Configuration.Portal.Saved={ModPrefix} Portalkonfiguration wurde gespeichert
+Configuration.Portal.UnknownPlaceholders={ModPrefix} Warnung: Unbekannte Platzhalter im Befehl: {PlaceholderList}
+Configuration.Portal.Edit.NoPermission={ModPrefix} Du hast keine Berechtigung, Portalkonfigurationen zu speichern (fehlend: {Permission})
+Configuration.Portal.View.NoPermission={ModPrefix} Du hast keine Berechtigung, Portalkonfigurationen anzusehen (fehlend: {Permission})

@@ -16,10 +16,10 @@ public final class TranslationKeys {
   public static final class Params {
     private Params() {}
 
-    public static final String PLUGIN_PREFIX = "PluginPrefix";
+    public static final String MOD_PREFIX = "ModPrefix";
     public static final String DETAIL = "Detail";
-    public static final String PLACEHOLDER_LIST = "placeholderList";
-    public static final String PLACEHOLDER_AMOUNT = "placeholderAmount";
-    public static final String PERMISSION = "permission";
+    public static final String PLACEHOLDER_LIST = "PlaceholderList";
+    public static final String PLACEHOLDER_AMOUNT = "PlaceholderAmount";
+    public static final String PERMISSION = "Permission";
   }
 }

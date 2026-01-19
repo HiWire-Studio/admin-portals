@@ -1,6 +1,6 @@
 # HiWire - AdminPortals v0.1.0
 
-A custom portal management plugin for Hytale single- and multiplayer by HiWire Studio
+A custom portal management mod for Hytale single- and multiplayer by HiWire Studio
 
 ![Project Logo Banner](docs/images/project-logo-banner.png)
 
@@ -35,7 +35,7 @@ The easiest way to install mods is via the [CurseForge App](https://www.cursefor
    - **Dedicated Server:** `/mods` folder in your server directory
 3. Restart the game or server
 
-Since Hytale uses a server internally for both singleplayer and multiplayer, this plugin works in both modes.
+Since Hytale uses a server internally for both singleplayer and multiplayer, this mod works in both modes.
 
 ## Commands
 
@@ -77,9 +77,9 @@ The configuration UI allows you to set the following options:
 
 | Option              | Description                                                                                                   |
 |---------------------|---------------------------------------------------------------------------------------------------------------|
-| **Type**     | The config type. Currently only the "Command" type is supported                                               |
+| **Type**            | The config type. Currently only the "Command" type is supported                                               |
 | **Command**         | The command to execute when the player is interacting with or walking through the portal                      |
-| **Execution Mode**  | `Server` - runs the command as console / CommandSender; `Player` - runs the command as the interacting player |
+| **Execution As**    | `Server` - runs the command as console / CommandSender; `Player` - runs the command as the interacting player |
 | **Map Marker Text** | Optional label displayed on the world map and compass                                                         |
 | **Map Marker Icon** | Icon filename from server assets for the map marker (default: `Warp.png`)                                     |
 
@@ -156,22 +156,22 @@ Self-contained portal blocks that are aligned with the world grid. The bottom of
 
 ## Customization
 
-The plugin supports user overrides for translations, UI definitions, and assets. Place your customizations in the plugin's data folder under `/overrides`.
+The mod supports user overrides for translations, UI definitions, and assets. Place your customizations in the mod's data folder under `/overrides`.
 
 ### Translation Files
 
-The plugin uses translation files located in `/Server/Languages/{language}/HiWire/AdminPortals/`:
+The mod uses translation files located in `/Server/Languages/{language}/HiWire/AdminPortals/`:
 
 - `Items.lang` - Portal item names and descriptions
 - `ChatMessages.lang` - Chat notifications and command messages
 - `UI.lang` - User interface labels
 
 Translation files with all keys are created and automatically updated at `mods/HiWire_AdminPortals/override/Server/Languages/{language}/HiWire/AdminPortals/`.
-Edit these files to customize translations without modifying the original plugin files.
+Edit these files to customize translations without modifying the original mod files.
 
 ### Custom Placeholders
 
-Plugin developers can register custom placeholders by accessing the `PlaceholderManager`:
+Mod developers can register custom placeholders by accessing the `PlaceholderManager`:
 
 ```java
 final var plugin = PluginManager.get().getPlugin(new PluginIdentifier("HiWire", "AdminPortals"));
@@ -205,7 +205,7 @@ The `PlaceholderContext` provides access to:
 ./gradlew build
 ```
 
-The compiled plugin JAR will be in `plugin/build/libs/`.
+The compiled mod JAR will be in `mod/build/libs/`.
 
 ## License
 
