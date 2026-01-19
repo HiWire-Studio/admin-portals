@@ -35,7 +35,7 @@ public class ListPlaceholdersCommand extends AbstractCommand {
 
     if (placeholders.isEmpty()) {
       final var noPlaceholdersRegisteredMessage =
-          Message.translation(MSG_NO_PLACEHOLDERS_REGISTERED).param(Params.PLUGIN_PREFIX, PREFIX);
+          Message.translation(MSG_NO_PLACEHOLDERS_REGISTERED).param(Params.MOD_PREFIX, PREFIX);
       context.sender().sendMessage(noPlaceholdersRegisteredMessage);
       return null;
     }
@@ -48,7 +48,7 @@ public class ListPlaceholdersCommand extends AbstractCommand {
 
     final var outputMessage =
         Message.translation(MSG_OUTPUT)
-            .param(Params.PLUGIN_PREFIX, PREFIX)
+            .param(Params.MOD_PREFIX, PREFIX)
             .param(Params.PLACEHOLDER_AMOUNT, placeholders.size())
             .param(Params.PLACEHOLDER_LIST, formatted);
 

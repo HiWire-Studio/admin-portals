@@ -1,9 +1,9 @@
 
 // Read Hytale settings from gradle.properties and pass to hytale-server.gradle.kts
-extra["hytalePatchline"] = project.findProperty("plugin.hytalePatchline") ?: "release"
-extra["hytaleIncludesAssetPack"] = (project.findProperty("plugin.hytaleIncludesAssetPack") as String?)?.toBoolean() ?: true
-extra["hytaleLoadUserMods"] = (project.findProperty("plugin.hytaleLoadUserMods") as String?)?.toBoolean() ?: false
-project.findProperty("plugin.hytaleHome")?.let { extra["hytaleHome"] = it }
+extra["hytalePatchline"] = project.findProperty("mod.hytalePatchline") ?: "release"
+extra["hytaleIncludesAssetPack"] = (project.findProperty("mod.hytaleIncludesAssetPack") as String?)?.toBoolean() ?: true
+extra["hytaleLoadUserMods"] = (project.findProperty("mod.hytaleLoadUserMods") as String?)?.toBoolean() ?: false
+project.findProperty("mod.hytaleHome")?.let { extra["hytaleHome"] = it }
 
 apply(from = "../hytale-server.gradle.kts")
 
@@ -26,7 +26,7 @@ dependencies {
 }
 
 tasks.jar {
-  archiveBaseName.set("hiwire-adminportals-plugin")
+  archiveBaseName.set("hiwire-adminportals-mod")
 }
 
 tasks.test {
@@ -38,4 +38,3 @@ tasks.test {
     events("passed", "skipped", "failed")
   }
 }
-

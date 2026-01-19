@@ -40,12 +40,11 @@ public class ToggleConfigModeCommand extends AbstractPlayerCommand {
     boolean enabled = configurationModeManager.toggle(playerRef);
 
     if (enabled) {
-      final var enabledMessage =
-          Message.translation(MSG_ENABLED).param(Params.PLUGIN_PREFIX, PREFIX);
+      final var enabledMessage = Message.translation(MSG_ENABLED).param(Params.MOD_PREFIX, PREFIX);
       playerRef.sendMessage(enabledMessage);
     } else {
       final var disabledMessage =
-          Message.translation(MSG_DISABLED).param(Params.PLUGIN_PREFIX, PREFIX);
+          Message.translation(MSG_DISABLED).param(Params.MOD_PREFIX, PREFIX);
       playerRef.sendMessage(disabledMessage);
     }
   }
