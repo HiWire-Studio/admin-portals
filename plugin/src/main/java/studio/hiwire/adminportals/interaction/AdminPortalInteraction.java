@@ -62,6 +62,7 @@ public class AdminPortalInteraction extends SimpleBlockInteraction {
     // Necessary for now as Use interactions don't apply cooldowns
     if (interactionType == InteractionType.Use
         && checkHasAndApplyCooldown(interactionContext.getChain(), cooldownHandler)) {
+      interactionContext.getState().state = InteractionState.Failed;
       return;
     }
 
@@ -69,17 +70,24 @@ public class AdminPortalInteraction extends SimpleBlockInteraction {
     final var playerRef = commandBuffer.getComponent(actorRef, PlayerRef.getComponentType());
     final var isPlayer = playerRef != null;
 
-    if (!isPlayer) return;
+    if (!isPlayer) {
+      interactionContext.getState().state = InteractionState.Failed;
+      return;
+    }
 
     // Get the chunk containing this block
     WorldChunk chunk = world.getChunkIfInMemory(ChunkUtil.indexChunkFromBlock(pos.x, pos.z));
-    if (chunk == null) return;
+    if (chunk == null) {
+      interactionContext.getState().state = InteractionState.Failed;
+      return;
+    }
 
     // Get the block entity reference for this specific block
     Ref<ChunkStore> blockEntityRef = chunk.getBlockComponentEntity(pos.x, pos.y, pos.z);
     if (blockEntityRef == null) {
       playerRef.sendMessage(
           Message.translation(MSG_PORTAL_NOT_CONFIGURED).param(Params.PLUGIN_PREFIX, PREFIX));
+      interactionContext.getState().state = InteractionState.Failed;
       return;
     }
 
@@ -92,6 +100,8 @@ public class AdminPortalInteraction extends SimpleBlockInteraction {
     final var playerInConfigurationMode =
         AdminPortalsPlugin.get().getConfigurationModeManager().isInConfigurationMode(playerRef);
     if (interactionType == InteractionType.Use && playerInConfigurationMode) {
+      interactionContext.getState().state = InteractionState.Skip;
+
       // Check if player has permission to view the configuration UI
       if (!PermissionsModule.get()
           .hasPermission(playerRef.getUuid(), Permissions.PORTAL_CONFIG_VIEW)) {
@@ -106,6 +116,7 @@ public class AdminPortalInteraction extends SimpleBlockInteraction {
       final var player = commandBuffer.getComponent(actorRef, Player.getComponentType());
       if (player == null) {
         LOGGER.at(Level.WARNING).log("Player not found for interaction");
+        interactionContext.getState().state = InteractionState.Failed;
         return;
       }
 
@@ -114,6 +125,7 @@ public class AdminPortalInteraction extends SimpleBlockInteraction {
     }
 
     if (portalConfig == null) {
+      interactionContext.getState().state = InteractionState.Failed;
       playerRef.sendMessage(
           Message.translation(MSG_PORTAL_NOT_CONFIGURED).param(Params.PLUGIN_PREFIX, PREFIX));
       return;
@@ -137,8 +149,10 @@ public class AdminPortalInteraction extends SimpleBlockInteraction {
 
     if (portalConfig.getType() == PortalConfigComponent.Type.Command) {
       handleCommandAction(portalConfig, playerRef, placeholderContext);
+      interactionContext.getState().state = InteractionState.Finished;
     } else {
       LOGGER.at(Level.WARNING).log("Unsupported portal type: %s", portalConfig.getType());
+      interactionContext.getState().state = InteractionState.Failed;
     }
   }
 
@@ -182,6 +196,14 @@ public class AdminPortalInteraction extends SimpleBlockInteraction {
       @NullableDecl ItemStack itemStack,
       @NonNullDecl World world,
       @NonNullDecl Vector3i vector3i) {}
+
+  @NonNullDecl
+  @Override
+  public WaitForDataFrom getWaitForDataFrom() {
+    // Wait for server interaction context state so
+    // client plays the correct interact sound
+    return WaitForDataFrom.Server;
+  }
 
   private void handleCommandAction(
       PortalConfigComponent config, PlayerRef playerRef, PlaceholderContext context) {
