@@ -77,6 +77,10 @@ tasks.register<JavaExec>("runServer") {
   workingDir = file("${rootProject.projectDir}/run")
   standardInput = System.`in`
 
+  doFirst {
+    workingDir.mkdirs()
+  }
+
   val modPaths = mutableListOf<String>()
   if (includesAssetPack) {
     modPaths += file("src").absolutePath
