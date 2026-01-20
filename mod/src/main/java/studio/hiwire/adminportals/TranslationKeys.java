@@ -10,7 +10,6 @@ public final class TranslationKeys {
   // Translation key prefixes
   public static final String CHAT_MESSAGES = "HiWire.AdminPortals.ChatMessages";
   public static final String UI = "HiWire.AdminPortals.UI";
-  public static final String ITEMS = "HiWire.AdminPortals.Items";
 
   /** Common parameter keys used in translations. */
   public static final class Params {

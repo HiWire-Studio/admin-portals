@@ -24,9 +24,11 @@ public class AdminPortalsPlugin extends JavaPlugin {
   private static AdminPortalsPlugin INSTANCE;
   public static final String PREFIX = "[HiWire:AdminPortals]";
   private static final Path OVERRIDES_PATH = Path.of("overrides");
-  private static final String TRANSLATIONS_CATEGORY = "HiWire/AdminPortals";
   private static final List<String> TRANSLATION_FILES =
-      List.of("Items.lang", "ChatMessages.lang", "UI.lang");
+      List.of(
+          "HiWire.AdminPortals.Items.lang",
+          "HiWire.AdminPortals.ChatMessages.lang",
+          "HiWire.AdminPortals.UI.lang");
   private static final List<String> SUPPORTED_LANGUAGES = List.of("en-US", "de-DE");
 
   @Getter private ComponentType<ChunkStore, PortalConfigComponent> adminPortalConfigComponentType;
@@ -88,9 +90,14 @@ public class AdminPortalsPlugin extends JavaPlugin {
 
     for (String language : SUPPORTED_LANGUAGES) {
       for (String file : TRANSLATION_FILES) {
-        String resourcePath =
-            String.format("Server/Languages/%s/%s/%s", language, TRANSLATIONS_CATEGORY, file);
-        Path targetPath = getDataDirectory().resolve(OVERRIDES_PATH).resolve(resourcePath);
+        String resourcePath = String.format("Server/Languages/%s/%s", language, file);
+        Path targetPath =
+            getDataDirectory()
+                .resolve(OVERRIDES_PATH)
+                .resolve("Server")
+                .resolve("Languages")
+                .resolve(language)
+                .resolve(file);
 
         TranslationFileManager.MergeResult result = fileManager.merge(resourcePath, targetPath);
 
