@@ -7,8 +7,8 @@ PortalBase_Portal_Forgotten_Temple.description=A swirling blue portal. Place on 
 PortalBase_Portal_Void.name=Void Portal (Elevated)
 PortalBase_Portal_Void.description=A swirling purple portal. Place on top of a Portal Base.
 
-StandalonePortal_Forgotten_Temple.name=Forgotten Temple Portal
+StandalonePortal_Forgotten_Temple.name=Forgotten Temple Portal (Standalone)
 StandalonePortal_Forgotten_Temple.description=A swirling temple portal. Place directly on the ground.
 
-StandalonePortal_Void.name=Void Portal
+StandalonePortal_Void.name=Void Portal (Standalone)
 StandalonePortal_Void.description=A swirling purple portal. Place directly on the ground.
