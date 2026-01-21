@@ -1,0 +1,116 @@
+{
+  "TranslationProperties": {
+    "Name": "HiWire.AdminPortals.Items.PortalBase_Portal_Debris_Standard.name",
+    "Description": "HiWire.AdminPortals.Items.PortalBase_Portal_Debris_Standard.description"
+  },
+  "Icon": "Icons/ItemsGenerated/Portal_Return.png",
+  "Categories": [
+    "Blocks.Portals"
+  ],
+  "BlockType": {
+    "AmbientSoundEventId": "SFX_Portal_Neutral",
+    "DrawType": "Model",
+    "Material": "Empty",
+    "Opacity": "Transparent",
+    "IgnoreSupportWhenPlaced": true,
+    "CustomModel": "Blocks/HiWire_AdminPortals_PortalBase_DebrisPortal.blockymodel",
+    "CustomModelTexture": [
+      {
+        "Texture": "Blocks/Miscellaneous/Platform_Magic_Blue2.png",
+        "Weight": 1
+      }
+    ],
+    "CustomModelAnimation": "Blocks/Miscellaneous/Platform_Magic_Idle.blockyanim",
+    "Looping": true,
+    "InteractionHitboxType": "HiWire_AdminPortals_PortalBase_DebrisPortal_Hitbox",
+    "HitboxType": "HiWire_AdminPortals_PortalBase_DebrisPortal_Hitbox",
+    "BlockParticleSetId": "Stone",
+    "BlockSoundSetId": "Stone",
+    "VariantRotation": "NESW",
+    "BlockEntity": {},
+    "Gathering": {
+      "Breaking": {
+        "GatherType": "Unbreakable"
+      }
+    },
+    "Particles": [
+      {
+        "SystemId": "MagicPortal",
+        "PositionOffset": {
+          "Y": 0.65
+        },
+        "Scale": 0.8
+      },
+      {
+        "SystemId": "MagicPortal_Stones",
+        "TargetEntityPart": "Self",
+        "TargetNodeName": "Debris"
+      },
+      {
+        "SystemId": "MagicPortal_Stones",
+        "TargetEntityPart": "Self",
+        "TargetNodeName": "Debris6"
+      }
+    ],
+    "Interactions": {
+      "Use": {
+        "Cooldown": {
+          "Id": "HiWire_AdminPortals_PortalUseCooldown",
+          "Cooldown": 1
+        },
+        "Interactions": [
+          {
+            "Type": "HiWire_AdminPortals_PortalInteraction",
+            "Next": {
+              "Type": "Simple",
+              "Effects": {
+                "LocalSoundEventId": "SFX_Portal_Neutral_Teleport_Local"
+              }
+            }
+          }
+        ]
+      },
+      "Collision": {
+        "Cooldown": {
+          "Id": "HiWire_AdminPortals_PortalUseCooldown",
+          "Cooldown": 1
+        },
+        "Interactions": [
+          {
+            "Type": "HiWire_AdminPortals_PortalInteraction",
+            "Next": {
+              "Type": "Simple",
+              "Effects": {
+                "LocalSoundEventId": "SFX_Portal_Neutral_Teleport_Local"
+              }
+            }
+          }
+        ]
+      }
+    },
+    "Light": {
+      "Color": "#7cc",
+      "Radius": 4
+    }
+  },
+  "PlayerAnimationsId": "Block",
+  "Tags": {
+    "Type": [
+      "Portal"
+    ]
+  },
+  "Quality": "Technical",
+  "IconProperties": {
+    "Scale": 0.35,
+    "Rotation": [
+      22.5,
+      45.0,
+      22.5
+    ],
+    "Translation": [
+      0.0,
+      -13.5
+    ]
+  },
+  "ItemSoundSetId": "ISS_Blocks_Stone"
+}
