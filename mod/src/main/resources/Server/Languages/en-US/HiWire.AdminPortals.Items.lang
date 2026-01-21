@@ -12,3 +12,9 @@ StandalonePortal_Forgotten_Temple.description=A swirling temple portal. Place di
 
 StandalonePortal_Void.name=Void Portal (Standalone)
 StandalonePortal_Void.description=A swirling purple portal. Place directly on the ground.
+
+PortalBase_Portal_Debris_Standard.name=Debris Portal (Elevated)
+PortalBase_Portal_Debris_Standard.description=A portal with floating debris. Place on top of a Portal Base.
+
+StandalonePortal_Debris_Standard.name=Debris Portal (Standalone)
+StandalonePortal_Debris_Standard.description=A portal with floating debris. Place directly on the ground.

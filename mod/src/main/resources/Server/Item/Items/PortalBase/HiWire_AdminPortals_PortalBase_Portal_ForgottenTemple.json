@@ -13,15 +13,15 @@
     "Material": "Empty",
     "Opacity": "Transparent",
     "IgnoreSupportWhenPlaced": true,
-    "CustomModel": "Blocks/HiWire_AdminPortals_PortalEffect.blockymodel",
+    "CustomModel": "Blocks/HiWire_AdminPortals_Portal_PlaceBlock.blockymodel",
     "CustomModelTexture": [
       {
-        "Texture": "Blocks/HiWire_AdminPortals_PortalEffect.png",
+        "Texture": "Blocks/HiWire_AdminPortals_Portal_PlaceBlock.png",
         "Weight": 1
       }
     ],
-    "InteractionHitboxType": "HiWire_AdminPortals_PortalBase_PortalHitbox",
-    "HitboxType": "HiWire_AdminPortals_PortalBase_PortalHitbox",
+    "InteractionHitboxType": "HiWire_AdminPortals_PortalBase_Portal_Hitbox",
+    "HitboxType": "HiWire_AdminPortals_PortalBase_Portal_Hitbox",
     "BlockParticleSetId": "Stone",
     "BlockSoundSetId": "Stone",
     "VariantRotation": "NESW",
@@ -74,6 +74,10 @@
           }
         ]
       }
+    },
+    "Light": {
+      "Color": "#7cc",
+      "Radius": 4
     }
   },
   "PlayerAnimationsId": "Block",
