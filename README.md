@@ -125,7 +125,8 @@ spawn
 
 ## Portal Blocks
 
-![All Portal Types](docs/images/portal-lineup.png)
+![All Portal Types](docs/images/portal-lineup-night.png)
+_Additional screenshots (daytime views, etc.) can be found [here](docs/images/)._
 
 Portal blocks can be found in the creative inventory under **Blocks > Portals**.
 

@@ -12,3 +12,9 @@ StandalonePortal_Forgotten_Temple.description=Ein wirbelndes Tempelportal. Direk
 
 StandalonePortal_Void.name=Void Portal (Eigenständig)
 StandalonePortal_Void.description=Ein wirbelndes lila Portal. Direkt auf dem Boden platzieren.
+
+PortalBase_Portal_Debris_Standard.name=Trümmer Portal (Erhöht)
+PortalBase_Portal_Debris_Standard.description=Ein Portal mit schwebenden Trümmern. Auf einer Portal-Basis platzieren.
+
+StandalonePortal_Debris_Standard.name=Trümmer Portal (Eigenständig)
+StandalonePortal_Debris_Standard.description=Ein Portal mit schwebenden Trümmern. Direkt auf dem Boden platzieren.
