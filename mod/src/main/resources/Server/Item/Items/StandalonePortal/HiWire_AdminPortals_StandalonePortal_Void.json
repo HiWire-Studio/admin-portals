@@ -47,13 +47,7 @@
         },
         "Interactions": [
           {
-            "Type": "HiWire_AdminPortals_PortalInteraction",
-            "Next": {
-              "Type": "Simple",
-              "Effects": {
-                "LocalSoundEventId": "SFX_Portal_Neutral_Teleport_Local"
-              }
-            }
+            "Type": "HiWire_AdminPortals_PortalInteraction"
           }
         ]
       },
@@ -64,13 +58,7 @@
         },
         "Interactions": [
           {
-            "Type": "HiWire_AdminPortals_PortalInteraction",
-            "Next": {
-              "Type": "Simple",
-              "Effects": {
-                "LocalSoundEventId": "SFX_Portal_Neutral_Teleport_Local"
-              }
-            }
+            "Type": "HiWire_AdminPortals_PortalInteraction"
           }
         ]
       }
