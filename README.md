@@ -1,4 +1,4 @@
-# HiWire - AdminPortals v0.3.0
+# HiWire - AdminPortals v0.4.0
 
 A custom portal management mod for Hytale single- and multiplayer by HiWire Studio
 
