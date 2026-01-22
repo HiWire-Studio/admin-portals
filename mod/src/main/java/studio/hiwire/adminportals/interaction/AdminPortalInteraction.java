@@ -9,10 +9,11 @@ import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.logger.HytaleLogger;
 import com.hypixel.hytale.math.util.ChunkUtil;
 import com.hypixel.hytale.math.vector.Vector3i;
-import com.hypixel.hytale.protocol.InteractionState;
 import com.hypixel.hytale.protocol.InteractionType;
+import com.hypixel.hytale.protocol.SoundCategory;
 import com.hypixel.hytale.protocol.WaitForDataFrom;
 import com.hypixel.hytale.server.core.Message;
+import com.hypixel.hytale.server.core.asset.type.soundevent.config.SoundEvent;
 import com.hypixel.hytale.server.core.command.system.CommandManager;
 import com.hypixel.hytale.server.core.console.ConsoleSender;
 import com.hypixel.hytale.server.core.entity.InteractionChain;
@@ -23,6 +24,7 @@ import com.hypixel.hytale.server.core.modules.interaction.interaction.CooldownHa
 import com.hypixel.hytale.server.core.modules.interaction.interaction.config.client.SimpleBlockInteraction;
 import com.hypixel.hytale.server.core.permissions.PermissionsModule;
 import com.hypixel.hytale.server.core.universe.PlayerRef;
+import com.hypixel.hytale.server.core.universe.world.SoundUtil;
 import com.hypixel.hytale.server.core.universe.world.World;
 import com.hypixel.hytale.server.core.universe.world.chunk.WorldChunk;
 import com.hypixel.hytale.server.core.universe.world.storage.ChunkStore;
@@ -48,6 +50,8 @@ public class AdminPortalInteraction extends SimpleBlockInteraction {
       CHAT_MESSAGES + ".Interaction.Portal.NotConfigured";
   private static final String MSG_NO_PERMISSION_VIEW =
       CHAT_MESSAGES + ".Configuration.Portal.View.NoPermission";
+  private static final String MSG_BLOCK_ENTITY_MISSING =
+      CHAT_MESSAGES + ".Interaction.Portal.BlockEntityMissing";
 
   @Override
   protected void interactWithBlock(
@@ -58,36 +62,39 @@ public class AdminPortalInteraction extends SimpleBlockInteraction {
       @NullableDecl ItemStack itemStack,
       @NonNullDecl Vector3i pos,
       @NonNullDecl CooldownHandler cooldownHandler) {
-
-    // Necessary for now as Use interactions don't apply cooldowns
-    if (interactionType == InteractionType.Use
-        && checkHasAndApplyCooldown(interactionContext.getChain(), cooldownHandler)) {
-      interactionContext.getState().state = InteractionState.Failed;
-      return;
-    }
-
     final var actorRef = interactionContext.getEntity();
     final var playerRef = commandBuffer.getComponent(actorRef, PlayerRef.getComponentType());
     final var isPlayer = playerRef != null;
 
     if (!isPlayer) {
-      interactionContext.getState().state = InteractionState.Failed;
+      return;
+    }
+
+    final var playerInConfigurationMode =
+        AdminPortalsPlugin.get().getConfigurationModeManager().isInConfigurationMode(playerRef);
+
+    // Necessary for now as Use interactions don't apply cooldowns
+    if (interactionType == InteractionType.Use
+        && checkHasAndApplyCooldown(interactionContext.getChain(), cooldownHandler)
+        && !playerInConfigurationMode) {
       return;
     }
 
     // Get the chunk containing this block
     WorldChunk chunk = world.getChunkIfInMemory(ChunkUtil.indexChunkFromBlock(pos.x, pos.z));
     if (chunk == null) {
-      interactionContext.getState().state = InteractionState.Failed;
       return;
     }
 
     // Get the block entity reference for this specific block
     Ref<ChunkStore> blockEntityRef = chunk.getBlockComponentEntity(pos.x, pos.y, pos.z);
     if (blockEntityRef == null) {
+      LOGGER.at(Level.WARNING).log(
+          "Block entity missing for portal at position %s - this is a bug, please report it with"
+              + " the server error if it is nearby",
+          pos);
       playerRef.sendMessage(
-          Message.translation(MSG_PORTAL_NOT_CONFIGURED).param(Params.MOD_PREFIX, PREFIX));
-      interactionContext.getState().state = InteractionState.Failed;
+          Message.translation(MSG_BLOCK_ENTITY_MISSING).param(Params.MOD_PREFIX, PREFIX));
       return;
     }
 
@@ -97,11 +104,7 @@ public class AdminPortalInteraction extends SimpleBlockInteraction {
         chunkStore.getComponent(blockEntityRef, PortalConfigComponent.getComponentType());
 
     // Open configuration page on interact if the player is in configuration mode
-    final var playerInConfigurationMode =
-        AdminPortalsPlugin.get().getConfigurationModeManager().isInConfigurationMode(playerRef);
     if (interactionType == InteractionType.Use && playerInConfigurationMode) {
-      interactionContext.getState().state = InteractionState.Skip;
-
       // Check if player has permission to view the configuration UI
       if (!PermissionsModule.get()
           .hasPermission(playerRef.getUuid(), Permissions.PORTAL_CONFIG_VIEW)) {
@@ -116,7 +119,6 @@ public class AdminPortalInteraction extends SimpleBlockInteraction {
       final var player = commandBuffer.getComponent(actorRef, Player.getComponentType());
       if (player == null) {
         LOGGER.at(Level.WARNING).log("Player not found for interaction");
-        interactionContext.getState().state = InteractionState.Failed;
         return;
       }
 
@@ -125,15 +127,18 @@ public class AdminPortalInteraction extends SimpleBlockInteraction {
     }
 
     if (portalConfig == null) {
-      interactionContext.getState().state = InteractionState.Failed;
       playerRef.sendMessage(
           Message.translation(MSG_PORTAL_NOT_CONFIGURED).param(Params.MOD_PREFIX, PREFIX));
       return;
     }
 
+    // Normalize config to ensure all fields have valid values (handles old portals with null
+    // fields)
+    final var config = portalConfig.normalized();
+
     LOGGER.at(Level.FINE).log(
         "Portal config found: type=%s, command=%s, sender=%s",
-        portalConfig.getType(), portalConfig.getCommand(), portalConfig.getCommandSender());
+        config.getType(), config.getCommand(), config.getCommandSender());
 
     PlaceholderContext placeholderContext =
         new PlaceholderContext(
@@ -145,14 +150,13 @@ public class AdminPortalInteraction extends SimpleBlockInteraction {
             pos,
             cooldownHandler,
             playerRef,
-            portalConfig);
+            config);
 
-    if (portalConfig.getType() == PortalConfigComponent.Type.Command) {
-      handleCommandAction(portalConfig, playerRef, placeholderContext);
-      interactionContext.getState().state = InteractionState.Finished;
+    if (config.getType() == PortalConfigComponent.Type.Command) {
+      handleCommandAction(config, playerRef, placeholderContext);
+      playTeleportSound(actorRef, commandBuffer, config.getInteractionSoundEffectId());
     } else {
-      LOGGER.at(Level.WARNING).log("Unsupported portal type: %s", portalConfig.getType());
-      interactionContext.getState().state = InteractionState.Failed;
+      LOGGER.at(Level.WARNING).log("Unsupported portal type: %s", config.getType());
     }
   }
 
@@ -213,6 +217,17 @@ public class AdminPortalInteraction extends SimpleBlockInteraction {
     switch (config.getCommandSender()) {
       case Server -> CommandManager.get().handleCommand(ConsoleSender.INSTANCE, processedCommand);
       case Player -> CommandManager.get().handleCommand(playerRef, processedCommand);
+    }
+  }
+
+  private void playTeleportSound(
+      Ref<EntityStore> actorRef,
+      CommandBuffer<EntityStore> commandBuffer,
+      String interactionSoundEffectId) {
+    int soundEventIndex = SoundEvent.getAssetMap().getIndex(interactionSoundEffectId);
+    if (soundEventIndex >= 0) {
+      SoundUtil.playSoundEvent2d(
+          actorRef, soundEventIndex, SoundCategory.SFX, commandBuffer.getStore());
     }
   }
 

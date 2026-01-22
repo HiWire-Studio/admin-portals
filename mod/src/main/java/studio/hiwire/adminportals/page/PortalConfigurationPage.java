@@ -10,6 +10,7 @@ import com.hypixel.hytale.codec.builder.BuilderCodec;
 import com.hypixel.hytale.codec.codecs.EnumCodec;
 import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.Store;
+import com.hypixel.hytale.logger.HytaleLogger;
 import com.hypixel.hytale.math.util.ChunkUtil;
 import com.hypixel.hytale.math.vector.Vector3i;
 import com.hypixel.hytale.protocol.packets.interface_.CustomPageLifetime;
@@ -33,6 +34,7 @@ import com.hypixel.hytale.server.core.universe.world.storage.ChunkStore;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import java.util.List;
+import java.util.logging.Level;
 import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -44,6 +46,8 @@ import studio.hiwire.adminportals.component.PortalConfigComponent;
 
 public class PortalConfigurationPage
     extends InteractiveCustomUIPage<PortalConfigurationPage.PageData> {
+
+  public static final HytaleLogger LOGGER = HytaleLogger.forEnclosingClass();
 
   @Nonnull private final Ref<ChunkStore> blockRef;
 
@@ -64,33 +68,21 @@ public class PortalConfigurationPage
   private static final String UI_COMMAND_SENDER = UI + ".CommandSender.";
 
   private PortalConfigComponent.Type currentType;
-  private final String currentCommand;
-  private final PortalConfigComponent.CommandSender currentCommandSender;
-  private final String currentMapMarkerName;
-  private final String currentMapMarkerIcon;
+  private String currentCommand;
+  private PortalConfigComponent.CommandSender currentCommandSender;
+  private String currentMapMarkerName;
+  private String currentMapMarkerIcon;
+  private String currentInteractionSoundEffectId;
 
   public PortalConfigurationPage(
       @Nonnull PlayerRef playerRef,
       @Nonnull Ref<ChunkStore> blockRef,
-      @Nullable PortalConfigComponent existingConfig) {
+      @Nullable PortalConfigComponent config) {
     super(playerRef, CustomPageLifetime.CanDismissOrCloseThroughInteraction, PageData.CODEC);
     this.blockRef = blockRef;
 
-    if (existingConfig != null) {
-      this.currentType = existingConfig.getType();
-      this.currentCommand = existingConfig.getCommand();
-      this.currentCommandSender = existingConfig.getCommandSender();
-    } else {
-      this.currentType = PortalConfigComponent.Type.Command;
-      this.currentCommand = "";
-      this.currentCommandSender = PortalConfigComponent.CommandSender.Server;
-    }
-
-    // Load existing map marker from the block ref
-    BlockMapMarker existingMapMarker =
-        blockRef.getStore().getComponent(blockRef, BlockMapMarker.getComponentType());
-    this.currentMapMarkerName = existingMapMarker != null ? existingMapMarker.getName() : "";
-    this.currentMapMarkerIcon = existingMapMarker != null ? existingMapMarker.getIcon() : "";
+    initFromConfig(config != null ? config.normalized() : new PortalConfigComponent().normalized());
+    initMapMarkerData();
   }
 
   @Override
@@ -110,9 +102,7 @@ public class PortalConfigurationPage
               LocalizableString.fromMessageId(UI_PORTAL_TYPE + type.name()), type.name()));
     }
     commandBuilder.set("#Type #Input.Entries", (List<?>) typeEntries);
-    commandBuilder.set(
-        "#Type #Input.Value",
-        currentType != null ? currentType.name() : PortalConfigComponent.Type.Command.name());
+    commandBuilder.set("#Type #Input.Value", currentType.name());
 
     // Build CommandSender dropdown
     ObjectArrayList<DropdownEntryInfo> senderEntries = new ObjectArrayList<>();
@@ -123,22 +113,13 @@ public class PortalConfigurationPage
               LocalizableString.fromMessageId(UI_COMMAND_SENDER + sender.name()), sender.name()));
     }
     commandBuilder.set("#CommandSender #Input.Entries", (List<?>) senderEntries);
-    commandBuilder.set(
-        "#CommandSender #Input.Value",
-        currentCommandSender != null
-            ? currentCommandSender.name()
-            : PortalConfigComponent.CommandSender.Server.name());
+    commandBuilder.set("#CommandSender #Input.Value", currentCommandSender.name());
+    commandBuilder.set("#Command #Input.Value", currentCommand);
 
-    // Set command text field
-    commandBuilder.set("#Command #Input.Value", currentCommand != null ? currentCommand : "");
+    commandBuilder.set("#MapMarkerName #Input.Value", currentMapMarkerName);
+    commandBuilder.set("#MapMarkerIcon #Input.Value", currentMapMarkerIcon);
 
-    // Set map marker name field
-    commandBuilder.set(
-        "#MapMarkerName #Input.Value", currentMapMarkerName != null ? currentMapMarkerName : "");
-
-    // Set map marker icon field
-    commandBuilder.set(
-        "#MapMarkerIcon #Input.Value", currentMapMarkerIcon != null ? currentMapMarkerIcon : "");
+    commandBuilder.set("#InteractionSoundEffectId #Input.Value", currentInteractionSoundEffectId);
 
     // Update visibility based on type
     updateSectionVisibility(commandBuilder);
@@ -150,7 +131,6 @@ public class PortalConfigurationPage
         new EventData().append("Action", "TypeChanged").append("@Type", "#Type #Input.Value"),
         false);
 
-    // Event: Save button
     eventBuilder.addEventBinding(
         CustomUIEventBindingType.Activating,
         "#SaveButton",
@@ -160,7 +140,8 @@ public class PortalConfigurationPage
             .append("@Command", "#Command #Input.Value")
             .append("@CommandSender", "#CommandSender #Input.Value")
             .append("@MapMarkerName", "#MapMarkerName #Input.Value")
-            .append("@MapMarkerIcon", "#MapMarkerIcon #Input.Value"));
+            .append("@MapMarkerIcon", "#MapMarkerIcon #Input.Value")
+            .append("@InteractionSoundEffectId", "#InteractionSoundEffectId #Input.Value"));
   }
 
   private void updateSectionVisibility(@Nonnull UICommandBuilder commandBuilder) {
@@ -171,7 +152,8 @@ public class PortalConfigurationPage
   @Override
   public void handleDataEvent(
       @Nonnull Ref<EntityStore> ref, @Nonnull Store<EntityStore> store, @Nonnull PageData data) {
-    // Ignore events without a known action
+    LOGGER.at(Level.FINE).log("Handling data event: %s", data);
+
     if (data.action == null) {
       return;
     }
@@ -207,6 +189,28 @@ public class PortalConfigurationPage
         }
         break;
     }
+  }
+
+  private void initFromConfig(@Nonnull PortalConfigComponent config) {
+    // Config is expected to be normalized (all fields non-null)
+    this.currentType = config.getType();
+    this.currentCommand = config.getCommand();
+    this.currentCommandSender = config.getCommandSender();
+    this.currentInteractionSoundEffectId = config.getInteractionSoundEffectId();
+  }
+
+  private void initMapMarkerData() {
+    // Load existing map marker from the block ref
+    BlockMapMarker existingMapMarker =
+        blockRef.getStore().getComponent(blockRef, BlockMapMarker.getComponentType());
+    this.currentMapMarkerName =
+        existingMapMarker != null && existingMapMarker.getName() != null
+            ? existingMapMarker.getName()
+            : "";
+    this.currentMapMarkerIcon =
+        existingMapMarker != null && existingMapMarker.getIcon() != null
+            ? existingMapMarker.getIcon()
+            : "";
   }
 
   private void updateBlockMapMarker(
@@ -296,9 +300,10 @@ public class PortalConfigurationPage
 
     PortalConfigComponent newConfig =
         new PortalConfigComponent(
-            data.type != null ? data.type : PortalConfigComponent.Type.Command,
+            data.type != null ? data.type : PortalConfigComponent.DEFAULT_TYPE,
             data.command,
-            data.commandSender);
+            data.commandSender,
+            data.interactionSoundEffectId);
 
     Store<ChunkStore> blockStore = blockRef.getStore();
     blockStore.putComponent(blockRef, PortalConfigComponent.getComponentType(), newConfig);
@@ -337,6 +342,7 @@ public class PortalConfigurationPage
     public PortalConfigComponent.CommandSender commandSender;
     public String mapMarkerName;
     public String mapMarkerIcon;
+    public String interactionSoundEffectId;
 
     static {
       CODEC =
@@ -375,6 +381,11 @@ public class PortalConfigurationPage
                   new KeyedCodec<>("@MapMarkerIcon", Codec.STRING),
                   (o, i) -> o.mapMarkerIcon = i,
                   o -> o.mapMarkerIcon)
+              .add()
+              .append(
+                  new KeyedCodec<>("@InteractionSoundEffectId", Codec.STRING),
+                  (o, i) -> o.interactionSoundEffectId = i,
+                  o -> o.interactionSoundEffectId)
               .add()
               .build();
     }

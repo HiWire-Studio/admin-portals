@@ -7,6 +7,8 @@ PortalConfigurationPage.MapMarkerText = Map Marker Text
 PortalConfigurationPage.MapMarkerText.Placeholder = Leave empty to hide
 PortalConfigurationPage.MapMarkerIcon = Map Marker Icon
 PortalConfigurationPage.MapMarkerIcon.Placeholder = Warp.png
+PortalConfigurationPage.InteractionSoundEffectId = "Teleport Sound"
+PortalConfigurationPage.InteractionSoundEffectId.Placeholder = "Leave empty for no sound"
 PortalConfigurationPage.Save = SAVE
 
 PortalType.Command = Command
