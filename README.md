@@ -82,6 +82,7 @@ The configuration UI allows you to set the following options:
 | **Execution As**    | `Server` - runs the command as console / CommandSender; `Player` - runs the command as the interacting player |
 | **Map Marker Text** | Optional label displayed on the world map and compass                                                         |
 | **Map Marker Icon** | Icon filename from server assets for the map marker (default: `Warp.png`)                                     |
+| **Teleport Sound**  | Sound effect ID to play when the portal is activated. Leave empty for no sound (default: `SFX_Portal_Neutral_Teleport_Local`) |
 
 ### Map Markers
 
