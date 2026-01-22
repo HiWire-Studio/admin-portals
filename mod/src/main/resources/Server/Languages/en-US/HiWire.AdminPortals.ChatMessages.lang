@@ -5,6 +5,7 @@ Command.Placeholders.ConfigMode.Toggle.Enabled={ModPrefix} Configuration mode en
 Command.Placeholders.ConfigMode.Toggle.Disabled={ModPrefix} Configuration mode disabled
 
 Interaction.Portal.NotConfigured=This portal is not configured
+Interaction.Portal.BlockEntityMissing={ModPrefix} Block entity not found - this is a bug, please report it
 
 Configuration.Portal.Command.NotSaved={ModPrefix} Portal configuration not saved: {Detail}
 Configuration.Portal.Command.NotSaved.Detail.CommandMissing=Command is empty

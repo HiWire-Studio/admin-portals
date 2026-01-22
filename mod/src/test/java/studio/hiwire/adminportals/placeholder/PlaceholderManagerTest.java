@@ -128,7 +128,7 @@ class PlaceholderManagerTest {
   }
 
   @Test
-  void customPlaceholderShouldWork() {
+  void registerShouldEnableCustomPlaceholders() {
     placeholderManager.register("Custom", ctx -> "customValue");
 
     String result = placeholderManager.process("test {Custom}", context);
