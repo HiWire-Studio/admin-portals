@@ -70,7 +70,8 @@ public class AdminPortalsPlugin extends JavaPlugin {
     // Must be registered before super.start0() so overrides take precedence over the main pack
     Path overridesDir = getDataDirectory().resolve(OVERRIDES_PATH);
     if (Files.exists(overridesDir)) {
-      AssetModule.get().registerPack(getIdentifier() + "_overrides", overridesDir, getManifest());
+      AssetModule.get()
+          .registerPack(getIdentifier() + "_overrides", overridesDir, getManifest(), true);
       getLogger().at(Level.INFO).log("Registered overrides asset pack from %s", overridesDir);
     }
 
