@@ -1,4 +1,4 @@
-# HiWire - AdminPortals v0.4.1
+# HiWire - AdminPortals v0.4.2
 
 A custom portal management mod for Hytale single- and multiplayer by HiWire Studio
 
@@ -158,7 +158,7 @@ Self-contained portal blocks that are aligned with the world grid. The bottom of
 
 ## Customization
 
-The mod supports user overrides for translations, UI definitions, and assets. Place your customizations in the mod's data folder under `/overrides`.
+The mod supports user overrides for translations, UI definitions, and assets. Place your customizations in the mod's data folder under `mods/HiWire_AdminPortals_Overrides`.
 
 ### Translation Files
 
@@ -168,7 +168,7 @@ The mod uses translation files located in `/Server/Languages/{language}/HiWire/A
 - `ChatMessages.lang` - Chat notifications and command messages
 - `UI.lang` - User interface labels
 
-Translation files with all keys are created and automatically updated at `mods/HiWire_AdminPortals/override/Server/Languages/{language}/HiWire/AdminPortals/`.
+Translation files with all keys are created and automatically updated at `mods/HiWire_AdminPortals_Overrides/Server/Languages/{language}/HiWire/AdminPortals/`.
 Edit these files to customize translations without modifying the original mod files.
 
 ### Custom Placeholders
