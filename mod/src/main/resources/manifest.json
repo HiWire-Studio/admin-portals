@@ -1,14 +1,14 @@
 {
     "Group": "HiWire",
     "Name": "AdminPortals",
-    "Version": "0.4.1",
+    "Version": "0.4.2",
     "Authors": [
         {
             "Name": "HiWire-Nick"
         }
     ],
     "Main": "studio.hiwire.adminportals.AdminPortalsPlugin",
-    "ServerVersion": "*",
+    "ServerVersion": "2026.02.17-255364b8e",
     "OptionalDependencies": {
         "Hytale:PermissionsModule": "*"
     },
