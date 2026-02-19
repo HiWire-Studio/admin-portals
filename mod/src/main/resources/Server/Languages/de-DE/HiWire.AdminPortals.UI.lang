@@ -9,6 +9,7 @@ PortalConfigurationPage.MapMarkerIcon = Kartenmarkierung Symbol
 PortalConfigurationPage.MapMarkerIcon.Placeholder = Warp.png
 PortalConfigurationPage.InteractionSoundEffectId = Teleportsound
 PortalConfigurationPage.InteractionSoundEffectId.Placeholder = Leer lassen für keinen Ton
+PortalConfigurationPage.AddCommand = BEFEHL HINZUFÜGEN
 PortalConfigurationPage.Save = SPEICHERN
 
 PortalType.Command = Befehl

@@ -1,0 +1,77 @@
+$C = "../Common.ui";
+
+@RowHeight = 42;
+
+@BoldDropdownStyle = DropdownBoxStyle(
+  ...$C.@DefaultDropdownBoxStyle,
+  LabelStyle: (...$C.@DefaultDropdownBoxLabelStyle, RenderBold: true),
+  PanelAlign: Right
+);
+
+@SettingLabel = Group {
+  Anchor: (Width: 160, Height: @RowHeight, Right: 8);
+  Background: (TexturePath: "../Common/OptionBackgroundPatch.png", Border: 16);
+  Padding: (Left: 16);
+  LayoutMode: Left;
+
+  Label {
+    Text: @Text;
+    Style: (...$C.@DefaultLabelStyle, VerticalAlignment: Center);
+  }
+};
+
+@SettingRow = Group {
+  LayoutMode: Left;
+  Anchor: (Bottom: 6);
+};
+
+Group {
+  LayoutMode: Top;
+
+  // Command input row
+  @SettingRow {
+    @SettingLabel {
+      @Text = %HiWire.AdminPortals.UI.PortalConfigurationPage.Command;
+    }
+
+    TextField #CommandInput {
+      Anchor: (Height: @RowHeight);
+      FlexWeight: 1;
+      PlaceholderText: %HiWire.AdminPortals.UI.PortalConfigurationPage.Command.Placeholder;
+      Style: $C.@DefaultInputFieldStyle;
+      PlaceholderStyle: $C.@DefaultInputFieldPlaceholderStyle;
+      Background: $C.@InputBoxBackground;
+      Padding: (Horizontal: 10);
+    }
+  }
+
+  // Execute As + Delete row
+  @SettingRow {
+    @SettingLabel {
+      @Text = %HiWire.AdminPortals.UI.PortalConfigurationPage.ExecuteAs;
+    }
+
+    DropdownBox #SenderInput {
+      Anchor: (Height: @RowHeight);
+      FlexWeight: 1;
+      Style: @BoldDropdownStyle;
+    }
+
+    $C.@CancelButton #DeleteButton {
+      @Anchor = (Height: @RowHeight, Left: 8);
+
+      Group {
+        LayoutMode: Center;
+        Group {
+          Anchor: (Width: 20, Height: 20);
+          Background: "Icons/Trash.png";
+        }
+      }
+    }
+  }
+
+  // Spacer between entries
+  Group {
+    Anchor: (Height: 8);
+  }
+}
