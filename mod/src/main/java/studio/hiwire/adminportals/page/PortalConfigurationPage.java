@@ -68,8 +68,7 @@ public class PortalConfigurationPage
   private static final String UI_COMMAND_SENDER = UI + ".CommandSender.";
 
   private PortalConfigComponent.Type currentType;
-  private String currentCommand;
-  private PortalConfigComponent.CommandSender currentCommandSender;
+  private final List<PortalConfigComponent.CommandEntry> currentCommands = new ObjectArrayList<>();
   private String currentMapMarkerName;
   private String currentMapMarkerIcon;
   private String currentInteractionSoundEffectId;
@@ -81,7 +80,10 @@ public class PortalConfigurationPage
     super(playerRef, CustomPageLifetime.CanDismissOrCloseThroughInteraction, PageData.CODEC);
     this.blockRef = blockRef;
 
-    initFromConfig(config != null ? config.normalized() : new PortalConfigComponent().normalized());
+    initFromConfig(
+        config != null
+            ? config.migrated().normalized()
+            : new PortalConfigComponent().normalized());
     initMapMarkerData();
   }
 
@@ -104,17 +106,8 @@ public class PortalConfigurationPage
     commandBuilder.set("#Type #Input.Entries", (List<?>) typeEntries);
     commandBuilder.set("#Type #Input.Value", currentType.name());
 
-    // Build CommandSender dropdown
-    ObjectArrayList<DropdownEntryInfo> senderEntries = new ObjectArrayList<>();
-    for (PortalConfigComponent.CommandSender sender :
-        PortalConfigComponent.CommandSender.values()) {
-      senderEntries.add(
-          new DropdownEntryInfo(
-              LocalizableString.fromMessageId(UI_COMMAND_SENDER + sender.name()), sender.name()));
-    }
-    commandBuilder.set("#CommandSender #Input.Entries", (List<?>) senderEntries);
-    commandBuilder.set("#CommandSender #Input.Value", currentCommandSender.name());
-    commandBuilder.set("#Command #Input.Value", currentCommand);
+    // Build command list
+    buildCommandList(commandBuilder, eventBuilder);
 
     commandBuilder.set("#MapMarkerName #Input.Value", currentMapMarkerName);
     commandBuilder.set("#MapMarkerIcon #Input.Value", currentMapMarkerIcon);
@@ -131,17 +124,88 @@ public class PortalConfigurationPage
         new EventData().append("Action", "TypeChanged").append("@Type", "#Type #Input.Value"),
         false);
 
+    // Event: Add Command button
+    eventBuilder.addEventBinding(
+        CustomUIEventBindingType.Activating,
+        "#AddCommandButton",
+        new EventData().append("Action", "AddCommand"),
+        false);
+
+    // Event: Save button (commands are tracked server-side, only collect non-command fields)
     eventBuilder.addEventBinding(
         CustomUIEventBindingType.Activating,
         "#SaveButton",
         new EventData()
             .append("Action", "Save")
             .append("@Type", "#Type #Input.Value")
-            .append("@Command", "#Command #Input.Value")
-            .append("@CommandSender", "#CommandSender #Input.Value")
             .append("@MapMarkerName", "#MapMarkerName #Input.Value")
             .append("@MapMarkerIcon", "#MapMarkerIcon #Input.Value")
             .append("@InteractionSoundEffectId", "#InteractionSoundEffectId #Input.Value"));
+  }
+
+  private void buildCommandList(
+      @Nonnull UICommandBuilder commandBuilder, @Nonnull UIEventBuilder eventBuilder) {
+    commandBuilder.clear("#CommandList");
+
+    ObjectArrayList<DropdownEntryInfo> senderEntries = new ObjectArrayList<>();
+    for (PortalConfigComponent.CommandSender sender :
+        PortalConfigComponent.CommandSender.values()) {
+      senderEntries.add(
+          new DropdownEntryInfo(
+              LocalizableString.fromMessageId(UI_COMMAND_SENDER + sender.name()), sender.name()));
+    }
+
+    // Top spacer (scrolls with content)
+    commandBuilder.append("#CommandList", "Pages/HiWire_AdminPortals_Spacer.ui");
+
+    for (int i = 0; i < currentCommands.size(); i++) {
+      PortalConfigComponent.CommandEntry entry = currentCommands.get(i);
+      // Offset by 1 to account for the top spacer
+      String selector = "#CommandList[" + (i + 1) + "]";
+
+      commandBuilder.append("#CommandList", "Pages/HiWire_AdminPortals_CommandEntry.ui");
+      commandBuilder.set(selector + " #CommandInput.Value", entry.getCommand());
+      commandBuilder.set(selector + " #SenderInput.Entries", (List<?>) senderEntries);
+      commandBuilder.set(selector + " #SenderInput.Value", entry.getCommandSender().name());
+
+      eventBuilder.addEventBinding(
+          CustomUIEventBindingType.ValueChanged,
+          selector + " #CommandInput",
+          new EventData()
+              .append("Action", "UpdateCommand")
+              .append("Index", String.valueOf(i))
+              .append("@Command", selector + " #CommandInput.Value"),
+          false);
+
+      eventBuilder.addEventBinding(
+          CustomUIEventBindingType.ValueChanged,
+          selector + " #SenderInput",
+          new EventData()
+              .append("Action", "UpdateCommandSender")
+              .append("Index", String.valueOf(i))
+              .append("@CommandSender", selector + " #SenderInput.Value"),
+          false);
+
+      eventBuilder.addEventBinding(
+          CustomUIEventBindingType.Activating,
+          selector + " #DeleteButton",
+          new EventData().append("Action", "DeleteCommand").append("Index", String.valueOf(i)),
+          false);
+    }
+
+    // Bottom spacer (scrolls with content)
+    commandBuilder.append("#CommandList", "Pages/HiWire_AdminPortals_Spacer.ui");
+  }
+
+  private static int parseIndex(@Nullable String value) {
+    if (value == null) {
+      return -1;
+    }
+    try {
+      return Integer.parseInt(value);
+    } catch (NumberFormatException e) {
+      return -1;
+    }
   }
 
   private void updateSectionVisibility(@Nonnull UICommandBuilder commandBuilder) {
@@ -170,6 +234,49 @@ public class PortalConfigurationPage
         }
         break;
 
+      case "AddCommand":
+        {
+          currentCommands.add(
+              new PortalConfigComponent.CommandEntry(
+                  "", PortalConfigComponent.CommandSender.Server));
+          UICommandBuilder commandBuilder = new UICommandBuilder();
+          UIEventBuilder eventBuilder = new UIEventBuilder();
+          buildCommandList(commandBuilder, eventBuilder);
+          sendUpdate(commandBuilder, eventBuilder, false);
+        }
+        break;
+
+      case "DeleteCommand":
+        {
+          int index = parseIndex(data.index);
+          if (index >= 0 && index < currentCommands.size()) {
+            currentCommands.remove(index);
+            UICommandBuilder commandBuilder = new UICommandBuilder();
+            UIEventBuilder eventBuilder = new UIEventBuilder();
+            buildCommandList(commandBuilder, eventBuilder);
+            sendUpdate(commandBuilder, eventBuilder, false);
+          }
+        }
+        break;
+
+      case "UpdateCommand":
+        {
+          int index = parseIndex(data.index);
+          if (index >= 0 && index < currentCommands.size() && data.command != null) {
+            currentCommands.get(index).setCommand(data.command);
+          }
+        }
+        break;
+
+      case "UpdateCommandSender":
+        {
+          int index = parseIndex(data.index);
+          if (index >= 0 && index < currentCommands.size() && data.commandSender != null) {
+            currentCommands.get(index).setCommandSender(data.commandSender);
+          }
+        }
+        break;
+
       case "Save":
         if (!PermissionsModule.get()
             .hasPermission(playerRef.getUuid(), Permissions.PORTAL_CONFIG_EDIT)) {
@@ -194,9 +301,13 @@ public class PortalConfigurationPage
   private void initFromConfig(@Nonnull PortalConfigComponent config) {
     // Config is expected to be normalized (all fields non-null)
     this.currentType = config.getType();
-    this.currentCommand = config.getCommand();
-    this.currentCommandSender = config.getCommandSender();
     this.currentInteractionSoundEffectId = config.getInteractionSoundEffectId();
+
+    this.currentCommands.clear();
+    for (PortalConfigComponent.CommandEntry entry : config.getCommands()) {
+      this.currentCommands.add(
+          new PortalConfigComponent.CommandEntry(entry.getCommand(), entry.getCommandSender()));
+    }
   }
 
   private void initMapMarkerData() {
@@ -281,7 +392,12 @@ public class PortalConfigurationPage
   }
 
   private void handleCommandSave(PageData data) {
-    if (data.command == null || data.command.isBlank()) {
+    // Filter to non-empty commands
+    boolean hasNonEmptyCommand =
+        currentCommands.stream()
+            .anyMatch(entry -> entry.getCommand() != null && !entry.getCommand().isBlank());
+
+    if (!hasNonEmptyCommand) {
       playerRef.sendMessage(
           Message.translation(MSG_CMD_NOT_SAVED)
               .param(Params.DETAIL, Message.translation(MSG_CMD_NOT_SAVED_DETAIL_CMD_MISSING))
@@ -289,20 +405,18 @@ public class PortalConfigurationPage
       return;
     }
 
-    if (data.commandSender == null) {
-      playerRef.sendMessage(
-          Message.translation(MSG_CMD_NOT_SAVED_REASON)
-              .param(
-                  Params.DETAIL, Message.translation(MSG_CMD_NOT_SAVED_DETAIL_EXECUTE_AS_MISSING))
-              .param(Params.MOD_PREFIX, PREFIX));
-      return;
-    }
+    // Remove empty commands
+    currentCommands.removeIf(entry -> entry.getCommand() == null || entry.getCommand().isBlank());
+
+    PortalConfigComponent.CommandEntry[] commandsArray =
+        currentCommands.toArray(new PortalConfigComponent.CommandEntry[0]);
 
     PortalConfigComponent newConfig =
         new PortalConfigComponent(
             data.type != null ? data.type : PortalConfigComponent.DEFAULT_TYPE,
-            data.command,
-            data.commandSender,
+            null,
+            null,
+            commandsArray,
             data.interactionSoundEffectId);
 
     Store<ChunkStore> blockStore = blockRef.getStore();
@@ -313,21 +427,23 @@ public class PortalConfigurationPage
 
     playerRef.sendMessage(Message.translation(MSG_PORTAL_SAVED).param(Params.MOD_PREFIX, PREFIX));
 
-    // Check for unknown placeholders in the command
-    if (data.command != null && !data.command.isEmpty()) {
-      String missingPlaceholders =
-          AdminPortalsPlugin.get()
-              .getPlaceholderManager()
-              .findMissingPlaceholders(data.command)
-              .stream()
-              .map(s -> String.format("{%s}", s))
-              .collect(Collectors.joining());
+    // Check for unknown placeholders in any command
+    for (PortalConfigComponent.CommandEntry entry : currentCommands) {
+      if (entry.getCommand() != null && !entry.getCommand().isEmpty()) {
+        String missingPlaceholders =
+            AdminPortalsPlugin.get()
+                .getPlaceholderManager()
+                .findMissingPlaceholders(entry.getCommand())
+                .stream()
+                .map(s -> String.format("{%s}", s))
+                .collect(Collectors.joining());
 
-      if (!missingPlaceholders.isEmpty()) {
-        playerRef.sendMessage(
-            Message.translation(MSG_UNKNOWN_PLACEHOLDERS)
-                .param(Params.MOD_PREFIX, PREFIX)
-                .param(Params.PLACEHOLDER_LIST, missingPlaceholders));
+        if (!missingPlaceholders.isEmpty()) {
+          playerRef.sendMessage(
+              Message.translation(MSG_UNKNOWN_PLACEHOLDERS)
+                  .param(Params.MOD_PREFIX, PREFIX)
+                  .param(Params.PLACEHOLDER_LIST, missingPlaceholders));
+        }
       }
     }
   }
@@ -343,6 +459,7 @@ public class PortalConfigurationPage
     public String mapMarkerName;
     public String mapMarkerIcon;
     public String interactionSoundEffectId;
+    public String index;
 
     static {
       CODEC =
@@ -386,6 +503,8 @@ public class PortalConfigurationPage
                   new KeyedCodec<>("@InteractionSoundEffectId", Codec.STRING),
                   (o, i) -> o.interactionSoundEffectId = i,
                   o -> o.interactionSoundEffectId)
+              .add()
+              .append(new KeyedCodec<>("Index", Codec.STRING), (o, i) -> o.index = i, o -> o.index)
               .add()
               .build();
     }

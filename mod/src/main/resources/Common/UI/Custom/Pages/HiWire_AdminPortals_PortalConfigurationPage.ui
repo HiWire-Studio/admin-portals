@@ -62,40 +62,35 @@ $C.@PageOverlay {
       Group #CommandSection {
         LayoutMode: Top;
 
-        // Command input
-        @SettingRow #Command {
-          @SettingLabel {
-            @Text = %HiWire.AdminPortals.UI.PortalConfigurationPage.Command;
-          }
-
-          TextField #Input {
-            Anchor: (Height: @RowHeight);
-            FlexWeight: 1;
-            PlaceholderText: %HiWire.AdminPortals.UI.PortalConfigurationPage.Command.Placeholder;
-            Style: $C.@DefaultInputFieldStyle;
-            PlaceholderStyle: $C.@DefaultInputFieldPlaceholderStyle;
-            Background: $C.@InputBoxBackground;
-            Padding: (Horizontal: 10);
-          }
+        // Top separator
+        Group {
+          Anchor: (Height: 4, Top: 4);
+          Background: (TexturePath: "../Common/OptionBackgroundPatch.png", Border: 0);
         }
 
-        // Command sender selector
-        @SettingRow #CommandSender {
-          @SettingLabel {
-            @Text = %HiWire.AdminPortals.UI.PortalConfigurationPage.ExecuteAs;
-          }
+        // Scrollable command list
+        Group #CommandList {
+          LayoutMode: TopScrolling;
+          ScrollbarStyle: $C.@DefaultScrollbarStyle;
+          Anchor: (Height: 240);
+        }
 
-          DropdownBox #Input {
-            Anchor: (Height: @RowHeight);
-            FlexWeight: 1;
-            Style: @BoldDropdownStyle;
-          }
+        // Bottom separator
+        Group {
+          Anchor: (Height: 4, Bottom: 6);
+          Background: (TexturePath: "../Common/OptionBackgroundPatch.png", Border: 0);
+        }
+
+        // Add Command button
+        $C.@SecondaryTextButton #AddCommandButton {
+          @Anchor = (Height: @RowHeight);
+          Text: %HiWire.AdminPortals.UI.PortalConfigurationPage.AddCommand;
         }
       }
 
       // Spacer between command and map marker sections
       Group {
-        Anchor: (Height: 12);
+        Anchor: (Height: 18);
       }
 
       // Map Marker section

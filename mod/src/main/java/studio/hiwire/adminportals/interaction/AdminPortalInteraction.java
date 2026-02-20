@@ -11,7 +11,6 @@ import com.hypixel.hytale.math.util.ChunkUtil;
 import com.hypixel.hytale.math.vector.Vector3i;
 import com.hypixel.hytale.protocol.InteractionType;
 import com.hypixel.hytale.protocol.SoundCategory;
-import com.hypixel.hytale.protocol.WaitForDataFrom;
 import com.hypixel.hytale.server.core.Message;
 import com.hypixel.hytale.server.core.asset.type.soundevent.config.SoundEvent;
 import com.hypixel.hytale.server.core.command.system.CommandManager;
@@ -29,6 +28,8 @@ import com.hypixel.hytale.server.core.universe.world.World;
 import com.hypixel.hytale.server.core.universe.world.chunk.WorldChunk;
 import com.hypixel.hytale.server.core.universe.world.storage.ChunkStore;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
+
+import java.util.Arrays;
 import java.util.logging.Level;
 import org.checkerframework.checker.nullness.compatqual.NonNullDecl;
 import org.checkerframework.checker.nullness.compatqual.NullableDecl;
@@ -132,13 +133,12 @@ public class AdminPortalInteraction extends SimpleBlockInteraction {
       return;
     }
 
-    // Normalize config to ensure all fields have valid values (handles old portals with null
-    // fields)
-    final var config = portalConfig.normalized();
+    // Migrate legacy fields and normalize to ensure all fields have valid values
+    final var config = portalConfig.migrated().normalized();
 
     LOGGER.at(Level.FINE).log(
-        "Portal config found: type=%s, command=%s, sender=%s",
-        config.getType(), config.getCommand(), config.getCommandSender());
+        "Portal config found: type=%s, commands=%s",
+        config.getType(), Arrays.toString(config.getCommands()));
 
     PlaceholderContext placeholderContext =
         new PlaceholderContext(
@@ -201,22 +201,20 @@ public class AdminPortalInteraction extends SimpleBlockInteraction {
       @NonNullDecl World world,
       @NonNullDecl Vector3i vector3i) {}
 
-  @NonNullDecl
-  @Override
-  public WaitForDataFrom getWaitForDataFrom() {
-    // Wait for server interaction context state so
-    // client plays the correct interact sound
-    return WaitForDataFrom.Server;
-  }
-
   private void handleCommandAction(
       PortalConfigComponent config, PlayerRef playerRef, PlaceholderContext context) {
-    String processedCommand =
-        AdminPortalsPlugin.get().getPlaceholderManager().process(config.getCommand(), context);
+    for (PortalConfigComponent.CommandEntry entry : config.getCommands()) {
+      if (entry.getCommand() == null || entry.getCommand().isBlank()) {
+        continue;
+      }
 
-    switch (config.getCommandSender()) {
-      case Server -> CommandManager.get().handleCommand(ConsoleSender.INSTANCE, processedCommand);
-      case Player -> CommandManager.get().handleCommand(playerRef, processedCommand);
+      String processedCommand =
+          AdminPortalsPlugin.get().getPlaceholderManager().process(entry.getCommand(), context);
+
+      switch (entry.getCommandSender()) {
+        case Server -> CommandManager.get().handleCommand(ConsoleSender.INSTANCE, processedCommand);
+        case Player -> CommandManager.get().handleCommand(playerRef, processedCommand);
+      }
     }
   }
 
