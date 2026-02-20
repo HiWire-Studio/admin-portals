@@ -6,7 +6,7 @@ A custom portal management mod for Hytale single- and multiplayer by HiWire Stud
 
 ## Features
 
-- **Configurable Portals** - Place portal blocks that execute commands when players interact with them
+- **Configurable Portals** - Place portal blocks that execute one or more commands when players interact with them
 - **Multiple Portal Styles** - Choose between Forgotten Temple (blue) and Void (purple) portal variants
 - **Command Execution Modes** - Execute commands as the server or as the interacting player
 - **Dynamic Placeholders** - Use placeholders in commands to insert player/location data
@@ -78,8 +78,8 @@ The configuration UI allows you to set the following options:
 | Option              | Description                                                                                                   |
 |---------------------|---------------------------------------------------------------------------------------------------------------|
 | **Type**            | The config type. Currently only the "Command" type is supported                                               |
-| **Command**         | The command to execute when the player is interacting with or walking through the portal                      |
-| **Execution As**    | `Server` - runs the command as console / CommandSender; `Player` - runs the command as the interacting player |
+| **Commands**        | A list of commands to execute when the player interacts with or walks through the portal. Each command has its own execution mode. Use the "Add Command" button to add more |
+| **Execute As**      | Per-command setting: `Server` - runs the command as console / CommandSender; `Player` - runs the command as the interacting player |
 | **Map Marker Text** | Optional label displayed on the world map and compass                                                         |
 | **Map Marker Icon** | Icon filename from server assets for the map marker (default: `Warp.png`)                                     |
 | **Teleport Sound**  | Sound effect ID to play when the portal is activated. Leave empty for no sound (default: `SFX_Portal_Neutral_Teleport_Local`) |
@@ -111,18 +111,12 @@ Use these placeholders in portal commands. They are replaced with actual values 
 
 ### Example Commands
 
-Executed as server / command sender:
-```
-tp {PlayerUsername} 100 64 200
-```
-```
-say Player {PlayerUsername} ({PlayerUuid}) has entered a portal at ({PosX}, {PosY}, {PosZ}) in world {WorldName}
-```
+A portal can have multiple commands that run in sequence. Each command can have its own execution mode.
 
-Executed as player:
-```
-spawn
-```
+For example, a portal could be configured with the following commands:
+1. `tp {PlayerUsername} 100 64 200` (Execute As: Server)
+2. `say Player {PlayerUsername} has entered a portal` (Execute As: Server)
+3. `spawn` (Execute As: Player)
 
 ## Portal Blocks
 
