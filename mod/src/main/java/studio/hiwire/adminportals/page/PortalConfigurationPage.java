@@ -55,12 +55,8 @@ public class PortalConfigurationPage
 
   private static final String MSG_CONFIG_PORTAL = CHAT_MESSAGES + ".Configuration.Portal";
   private static final String MSG_CMD_NOT_SAVED = MSG_CONFIG_PORTAL + ".Command.NotSaved";
-  private static final String MSG_CMD_NOT_SAVED_REASON =
-      MSG_CONFIG_PORTAL + ".Command.NotSavedReason";
   private static final String MSG_CMD_NOT_SAVED_DETAIL_CMD_MISSING =
       MSG_CONFIG_PORTAL + ".Command.NotSaved.Detail.CommandMissing";
-  private static final String MSG_CMD_NOT_SAVED_DETAIL_EXECUTE_AS_MISSING =
-      MSG_CONFIG_PORTAL + ".Command.NotSaved.Detail.ExecuteAsMissing";
   private static final String MSG_PORTAL_SAVED = MSG_CONFIG_PORTAL + ".Saved";
   private static final String MSG_UNKNOWN_PLACEHOLDERS = MSG_CONFIG_PORTAL + ".UnknownPlaceholders";
   private static final String MSG_NO_PERMISSION = MSG_CONFIG_PORTAL + ".Edit.NoPermission";
@@ -81,9 +77,7 @@ public class PortalConfigurationPage
     this.blockRef = blockRef;
 
     initFromConfig(
-        config != null
-            ? config.migrated().normalized()
-            : new PortalConfigComponent().normalized());
+        config != null ? config.migrated().normalized() : new PortalConfigComponent().normalized());
     initMapMarkerData();
   }
 

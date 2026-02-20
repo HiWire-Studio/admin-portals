@@ -32,8 +32,7 @@ class PortalConfigComponentTest {
       assertEquals(1, migrated.getCommands().length);
       assertEquals("legacy command", migrated.getCommands()[0].getCommand());
       assertEquals(
-          PortalConfigComponent.CommandSender.Player,
-          migrated.getCommands()[0].getCommandSender());
+          PortalConfigComponent.CommandSender.Player, migrated.getCommands()[0].getCommandSender());
       assertEquals("SFX_Custom_Sound", migrated.getInteractionSoundEffectId());
     }
 
@@ -74,8 +73,7 @@ class PortalConfigComponentTest {
       assertEquals(1, migrated.getCommands().length);
       assertEquals("new command", migrated.getCommands()[0].getCommand());
       assertEquals(
-          PortalConfigComponent.CommandSender.Server,
-          migrated.getCommands()[0].getCommandSender());
+          PortalConfigComponent.CommandSender.Server, migrated.getCommands()[0].getCommandSender());
     }
 
     @Test
@@ -135,8 +133,7 @@ class PortalConfigComponentTest {
                 "cmd", PortalConfigComponent.CommandSender.Server)
           };
       PortalConfigComponent config =
-          new PortalConfigComponent(
-              PortalConfigComponent.Type.Command, null, null, commands, null);
+          new PortalConfigComponent(PortalConfigComponent.Type.Command, null, null, commands, null);
 
       PortalConfigComponent migrated = config.migrated();
 
@@ -196,8 +193,7 @@ class PortalConfigComponentTest {
 
     @Test
     void shouldMigrateLegacyAndApplyDefaults() {
-      PortalConfigComponent config =
-          new PortalConfigComponent(null, "my command", null, null, "");
+      PortalConfigComponent config = new PortalConfigComponent(null, "my command", null, null, "");
 
       PortalConfigComponent result = config.migrated().normalized();
 
@@ -207,8 +203,7 @@ class PortalConfigComponentTest {
       assertEquals(1, result.getCommands().length);
       assertEquals("my command", result.getCommands()[0].getCommand());
       assertEquals(
-          PortalConfigComponent.DEFAULT_COMMAND_SENDER,
-          result.getCommands()[0].getCommandSender());
+          PortalConfigComponent.DEFAULT_COMMAND_SENDER, result.getCommands()[0].getCommandSender());
       assertEquals("", result.getInteractionSoundEffectId());
     }
 
