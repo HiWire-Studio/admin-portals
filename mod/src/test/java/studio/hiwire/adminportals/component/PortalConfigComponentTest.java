@@ -1,10 +1,12 @@
 package studio.hiwire.adminportals.component;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -22,7 +24,9 @@ class PortalConfigComponentTest {
               "legacy command",
               PortalConfigComponent.CommandSender.Player,
               null,
-              "SFX_Custom_Sound");
+              "SFX_Custom_Sound",
+              null,
+              null);
 
       PortalConfigComponent migrated = config.migrated();
 
@@ -40,7 +44,7 @@ class PortalConfigComponentTest {
     void shouldDefaultSenderWhenNull() {
       PortalConfigComponent config =
           new PortalConfigComponent(
-              PortalConfigComponent.Type.Command, "legacy command", null, null, null);
+              PortalConfigComponent.Type.Command, "legacy command", null, null, null, null, null);
 
       PortalConfigComponent migrated = config.migrated();
 
@@ -64,6 +68,8 @@ class PortalConfigComponentTest {
               "legacy command",
               PortalConfigComponent.CommandSender.Player,
               commands,
+              null,
+              null,
               null);
 
       PortalConfigComponent migrated = config.migrated();
@@ -79,7 +85,8 @@ class PortalConfigComponentTest {
     @Test
     void shouldReturnEmptyArrayWhenNoCommandsAndNoLegacy() {
       PortalConfigComponent config =
-          new PortalConfigComponent(PortalConfigComponent.Type.Command, null, null, null, null);
+          new PortalConfigComponent(
+              PortalConfigComponent.Type.Command, null, null, null, null, null, null);
 
       PortalConfigComponent migrated = config.migrated();
 
@@ -94,6 +101,8 @@ class PortalConfigComponentTest {
               PortalConfigComponent.Type.Command,
               "",
               PortalConfigComponent.CommandSender.Server,
+              null,
+              null,
               null,
               null);
 
@@ -112,6 +121,8 @@ class PortalConfigComponentTest {
               PortalConfigComponent.Type.Command,
               "legacy command",
               PortalConfigComponent.CommandSender.Player,
+              null,
+              null,
               null,
               null);
 
@@ -133,7 +144,8 @@ class PortalConfigComponentTest {
                 "cmd", PortalConfigComponent.CommandSender.Server)
           };
       PortalConfigComponent config =
-          new PortalConfigComponent(PortalConfigComponent.Type.Command, null, null, commands, null);
+          new PortalConfigComponent(
+              PortalConfigComponent.Type.Command, null, null, commands, null, null, null);
 
       PortalConfigComponent migrated = config.migrated();
 
@@ -146,7 +158,8 @@ class PortalConfigComponentTest {
 
     @Test
     void shouldUseDefaultsForAllNullFields() {
-      PortalConfigComponent config = new PortalConfigComponent(null, null, null, null, null);
+      PortalConfigComponent config =
+          new PortalConfigComponent(null, null, null, null, null, null, null);
 
       PortalConfigComponent normalized = config.normalized();
 
@@ -156,12 +169,17 @@ class PortalConfigComponentTest {
       assertEquals(
           PortalConfigComponent.DEFAULT_INTERACTION_SOUND_EFFECT_ID,
           normalized.getInteractionSoundEffectId());
+      assertEquals(
+          PortalConfigComponent.DEFAULT_COLLISION_INTERACTION,
+          normalized.getCollisionInteraction());
+      assertEquals(PortalConfigComponent.DEFAULT_USE_INTERACTION, normalized.getUseInteraction());
     }
 
     @Test
     void shouldPreserveEmptyInteractionSound() {
       PortalConfigComponent config =
-          new PortalConfigComponent(PortalConfigComponent.Type.Command, null, null, null, "");
+          new PortalConfigComponent(
+              PortalConfigComponent.Type.Command, null, null, null, "", null, null);
 
       PortalConfigComponent normalized = config.normalized();
 
@@ -177,7 +195,13 @@ class PortalConfigComponentTest {
           };
       PortalConfigComponent config =
           new PortalConfigComponent(
-              PortalConfigComponent.Type.Command, null, null, commands, "SFX_Custom_Sound");
+              PortalConfigComponent.Type.Command,
+              null,
+              null,
+              commands,
+              "SFX_Custom_Sound",
+              null,
+              null);
 
       PortalConfigComponent normalized = config.normalized();
 
@@ -186,6 +210,68 @@ class PortalConfigComponentTest {
       assertEquals("test command", normalized.getCommands()[0].getCommand());
       assertEquals("SFX_Custom_Sound", normalized.getInteractionSoundEffectId());
     }
+
+    @Test
+    void shouldDefaultNullCollisionInteraction() {
+      PortalConfigComponent config =
+          new PortalConfigComponent(null, null, null, null, null, null, null);
+
+      PortalConfigComponent normalized = config.normalized();
+
+      assertEquals(
+          PortalConfigComponent.DEFAULT_COLLISION_INTERACTION,
+          normalized.getCollisionInteraction());
+    }
+
+    @Test
+    void shouldPreserveExplicitTrueCollisionInteraction() {
+      PortalConfigComponent config =
+          new PortalConfigComponent(null, null, null, null, null, true, null);
+
+      PortalConfigComponent normalized = config.normalized();
+
+      assertTrue(normalized.getCollisionInteraction());
+    }
+
+    @Test
+    void shouldPreserveExplicitFalseCollisionInteraction() {
+      PortalConfigComponent config =
+          new PortalConfigComponent(null, null, null, null, null, false, null);
+
+      PortalConfigComponent normalized = config.normalized();
+
+      assertFalse(normalized.getCollisionInteraction());
+    }
+
+    @Test
+    void shouldDefaultNullUseInteraction() {
+      PortalConfigComponent config =
+          new PortalConfigComponent(null, null, null, null, null, null, null);
+
+      PortalConfigComponent normalized = config.normalized();
+
+      assertEquals(PortalConfigComponent.DEFAULT_USE_INTERACTION, normalized.getUseInteraction());
+    }
+
+    @Test
+    void shouldPreserveExplicitTrueUseInteraction() {
+      PortalConfigComponent config =
+          new PortalConfigComponent(null, null, null, null, null, null, true);
+
+      PortalConfigComponent normalized = config.normalized();
+
+      assertTrue(normalized.getUseInteraction());
+    }
+
+    @Test
+    void shouldPreserveExplicitFalseUseInteraction() {
+      PortalConfigComponent config =
+          new PortalConfigComponent(null, null, null, null, null, null, false);
+
+      PortalConfigComponent normalized = config.normalized();
+
+      assertFalse(normalized.getUseInteraction());
+    }
   }
 
   @Nested
@@ -193,7 +279,8 @@ class PortalConfigComponentTest {
 
     @Test
     void shouldMigrateLegacyAndApplyDefaults() {
-      PortalConfigComponent config = new PortalConfigComponent(null, "my command", null, null, "");
+      PortalConfigComponent config =
+          new PortalConfigComponent(null, "my command", null, null, "", null, null);
 
       PortalConfigComponent result = config.migrated().normalized();
 
@@ -209,7 +296,8 @@ class PortalConfigComponentTest {
 
     @Test
     void shouldHandleAllNullFields() {
-      PortalConfigComponent config = new PortalConfigComponent(null, null, null, null, null);
+      PortalConfigComponent config =
+          new PortalConfigComponent(null, null, null, null, null, null, null);
 
       PortalConfigComponent result = config.migrated().normalized();
 

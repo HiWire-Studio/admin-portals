@@ -135,6 +135,14 @@ public class AdminPortalInteraction extends SimpleBlockInteraction {
     // Migrate legacy fields and normalize to ensure all fields have valid values
     final var config = portalConfig.migrated().normalized();
 
+    if (interactionType != InteractionType.Use && !config.getCollisionInteraction()) {
+      return;
+    }
+
+    if (interactionType == InteractionType.Use && !config.getUseInteraction()) {
+      return;
+    }
+
     LOGGER.at(Level.FINE).log(
         "Portal config found: type=%s, commands=%s",
         config.getType(), Arrays.toString(config.getCommands()));

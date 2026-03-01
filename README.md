@@ -78,11 +78,13 @@ The configuration UI allows you to set the following options:
 | Option              | Description                                                                                                   |
 |---------------------|---------------------------------------------------------------------------------------------------------------|
 | **Type**            | The config type. Currently only the "Command" type is supported                                               |
-| **Commands**        | A list of commands to execute when the player interacts with or walks through the portal. Each command has its own execution mode. Use the "Add Command" button to add more |
+| **Commands**        | A list of commands to execute when the player activates the portal. Each command has its own execution mode. Use the "Add Command" button to add more |
 | **Execute As**      | Per-command setting: `Server` - runs the command as console / CommandSender; `Player` - runs the command as the interacting player |
+| **Teleport Sound**  | Sound effect ID to play when the portal is activated. Leave empty for no sound (default: `SFX_Portal_Neutral_Teleport_Local`) |
 | **Map Marker Text** | Optional label displayed on the world map and compass                                                         |
 | **Map Marker Icon** | Icon filename from server assets for the map marker (default: `Warp.png`)                                     |
-| **Teleport Sound**  | Sound effect ID to play when the portal is activated. Leave empty for no sound (default: `SFX_Portal_Neutral_Teleport_Local`) |
+| **Collision**       | Enable or disable portal activation when a player walks through the portal's hitbox (default: enabled)        |
+| **Use**             | Enable or disable portal activation when a player presses the interact key (default: enabled)                 |
 
 ### Map Markers
 
@@ -127,9 +129,9 @@ Portal blocks can be found in the creative inventory under **Blocks > Portals**.
 
 ### Using Portals
 
-Players can activate a configured portal in two ways:
-- **Walking through** the portals hitbox
-- **Interacting** with the portal using the interact key
+Players can activate a configured portal in two ways (both enabled by default, configurable per portal):
+- **Collision** - Walking through the portal's hitbox
+- **Use** - Pressing the interact key on the portal
 
 ![Portal Interact Prompt](docs/images/portal-interact.png)
 
