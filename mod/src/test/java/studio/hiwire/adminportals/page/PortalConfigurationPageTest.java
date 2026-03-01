@@ -1,7 +1,9 @@
 package studio.hiwire.adminportals.page;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
@@ -52,8 +54,9 @@ class PortalConfigurationPageTest {
               "test command",
               PortalConfigComponent.CommandSender.Server,
               null,
-              null // null sound effect ID
-              );
+              null, // null sound effect ID
+              null,
+              null);
 
       PortalConfigurationPage page = new PortalConfigurationPage(playerRef, blockRef, config);
 
@@ -73,8 +76,9 @@ class PortalConfigurationPageTest {
               "test command",
               PortalConfigComponent.CommandSender.Server,
               null,
-              "" // explicitly empty sound effect ID
-              );
+              "", // explicitly empty sound effect ID
+              null,
+              null);
 
       PortalConfigurationPage page = new PortalConfigurationPage(playerRef, blockRef, config);
 
@@ -95,7 +99,9 @@ class PortalConfigurationPageTest {
               "test command",
               PortalConfigComponent.CommandSender.Server,
               null,
-              customSound);
+              customSound,
+              null,
+              null);
 
       PortalConfigurationPage page = new PortalConfigurationPage(playerRef, blockRef, config);
 
@@ -115,7 +121,9 @@ class PortalConfigurationPageTest {
               "legacy command",
               PortalConfigComponent.CommandSender.Player,
               null, // no commands array - should migrate
-              "SFX_Custom_Sound");
+              "SFX_Custom_Sound",
+              null,
+              null);
 
       PortalConfigurationPage page = new PortalConfigurationPage(playerRef, blockRef, config);
 
@@ -140,7 +148,8 @@ class PortalConfigurationPageTest {
                 "cmd2", PortalConfigComponent.CommandSender.Player)
           };
       PortalConfigComponent config =
-          new PortalConfigComponent(PortalConfigComponent.Type.Command, null, null, commands, null);
+          new PortalConfigComponent(
+              PortalConfigComponent.Type.Command, null, null, commands, null, null, null);
 
       PortalConfigurationPage page = new PortalConfigurationPage(playerRef, blockRef, config);
 
@@ -168,6 +177,8 @@ class PortalConfigurationPageTest {
               null,
               null,
               new PortalConfigComponent.CommandEntry[0],
+              null,
+              null,
               null);
 
       PortalConfigurationPage page = new PortalConfigurationPage(playerRef, blockRef, config);
@@ -176,6 +187,70 @@ class PortalConfigurationPageTest {
           getPrivateField(page, "currentCommands");
       assertNotNull(currentCommands);
       assertEquals(0, currentCommands.size());
+    }
+  }
+
+  @Test
+  void constructorShouldLoadCollisionInteractionFromConfig() throws Exception {
+    try (MockedStatic<BlockMapMarker> mockedMarker = mockStatic(BlockMapMarker.class)) {
+      mockedMarker.when(BlockMapMarker::getComponentType).thenReturn(markerComponentType);
+
+      PortalConfigComponent config =
+          new PortalConfigComponent(
+              PortalConfigComponent.Type.Command, null, null, null, null, false, null);
+
+      PortalConfigurationPage page = new PortalConfigurationPage(playerRef, blockRef, config);
+
+      boolean collision = getPrivateField(page, "currentCollisionInteraction");
+      assertFalse(collision);
+    }
+  }
+
+  @Test
+  void constructorShouldDefaultCollisionInteractionWhenNull() throws Exception {
+    try (MockedStatic<BlockMapMarker> mockedMarker = mockStatic(BlockMapMarker.class)) {
+      mockedMarker.when(BlockMapMarker::getComponentType).thenReturn(markerComponentType);
+
+      PortalConfigComponent config =
+          new PortalConfigComponent(
+              PortalConfigComponent.Type.Command, null, null, null, null, null, null);
+
+      PortalConfigurationPage page = new PortalConfigurationPage(playerRef, blockRef, config);
+
+      boolean collision = getPrivateField(page, "currentCollisionInteraction");
+      assertTrue(collision);
+    }
+  }
+
+  @Test
+  void constructorShouldLoadUseInteractionFromConfig() throws Exception {
+    try (MockedStatic<BlockMapMarker> mockedMarker = mockStatic(BlockMapMarker.class)) {
+      mockedMarker.when(BlockMapMarker::getComponentType).thenReturn(markerComponentType);
+
+      PortalConfigComponent config =
+          new PortalConfigComponent(
+              PortalConfigComponent.Type.Command, null, null, null, null, null, false);
+
+      PortalConfigurationPage page = new PortalConfigurationPage(playerRef, blockRef, config);
+
+      boolean use = getPrivateField(page, "currentUseInteraction");
+      assertFalse(use);
+    }
+  }
+
+  @Test
+  void constructorShouldDefaultUseInteractionWhenNull() throws Exception {
+    try (MockedStatic<BlockMapMarker> mockedMarker = mockStatic(BlockMapMarker.class)) {
+      mockedMarker.when(BlockMapMarker::getComponentType).thenReturn(markerComponentType);
+
+      PortalConfigComponent config =
+          new PortalConfigComponent(
+              PortalConfigComponent.Type.Command, null, null, null, null, null, null);
+
+      PortalConfigurationPage page = new PortalConfigurationPage(playerRef, blockRef, config);
+
+      boolean use = getPrivateField(page, "currentUseInteraction");
+      assertTrue(use);
     }
   }
 

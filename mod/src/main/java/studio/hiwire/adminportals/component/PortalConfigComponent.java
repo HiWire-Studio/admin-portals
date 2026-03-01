@@ -28,12 +28,16 @@ public class PortalConfigComponent implements Component<ChunkStore> {
   public static final CommandEntry[] DEFAULT_COMMANDS = new CommandEntry[0];
   public static final String DEFAULT_INTERACTION_SOUND_EFFECT_ID =
       "SFX_Portal_Neutral_Teleport_Local";
+  public static final boolean DEFAULT_COLLISION_INTERACTION = true;
+  public static final boolean DEFAULT_USE_INTERACTION = true;
 
   private Type type;
   private String command;
   private CommandSender commandSender;
   private CommandEntry[] commands;
   private String interactionSoundEffectId;
+  private Boolean collisionInteraction;
+  private Boolean useInteraction;
 
   /**
    * Returns a new component with legacy single-command fields migrated to the {@code commands}
@@ -55,7 +59,14 @@ public class PortalConfigComponent implements Component<ChunkStore> {
     } else {
       migratedCommands = DEFAULT_COMMANDS;
     }
-    return new PortalConfigComponent(type, null, null, migratedCommands, interactionSoundEffectId);
+    return new PortalConfigComponent(
+        type,
+        null,
+        null,
+        migratedCommands,
+        interactionSoundEffectId,
+        collisionInteraction,
+        useInteraction);
   }
 
   /**
@@ -70,7 +81,9 @@ public class PortalConfigComponent implements Component<ChunkStore> {
         commands != null ? commands : DEFAULT_COMMANDS,
         interactionSoundEffectId != null
             ? interactionSoundEffectId
-            : DEFAULT_INTERACTION_SOUND_EFFECT_ID);
+            : DEFAULT_INTERACTION_SOUND_EFFECT_ID,
+        collisionInteraction != null ? collisionInteraction : DEFAULT_COLLISION_INTERACTION,
+        useInteraction != null ? useInteraction : DEFAULT_USE_INTERACTION);
   }
 
   @NullableDecl
@@ -87,7 +100,13 @@ public class PortalConfigComponent implements Component<ChunkStore> {
     }
 
     return new PortalConfigComponent(
-        this.type, this.command, this.commandSender, clonedCommands, this.interactionSoundEffectId);
+        this.type,
+        this.command,
+        this.commandSender,
+        clonedCommands,
+        this.interactionSoundEffectId,
+        this.collisionInteraction,
+        this.useInteraction);
   }
 
   public static ComponentType<ChunkStore, PortalConfigComponent> getComponentType() {
@@ -170,6 +189,16 @@ public class PortalConfigComponent implements Component<ChunkStore> {
                 new KeyedCodec<>("InteractionSoundEffectId", Codec.STRING),
                 (o, i) -> o.interactionSoundEffectId = i,
                 o -> o.interactionSoundEffectId)
+            .add()
+            .append(
+                new KeyedCodec<>("CollisionInteraction", Codec.BOOLEAN),
+                (o, i) -> o.collisionInteraction = i,
+                o -> o.collisionInteraction)
+            .add()
+            .append(
+                new KeyedCodec<>("UseInteraction", Codec.BOOLEAN),
+                (o, i) -> o.useInteraction = i,
+                o -> o.useInteraction)
             .add()
             .build();
   }

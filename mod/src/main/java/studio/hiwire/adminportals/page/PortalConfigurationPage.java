@@ -68,6 +68,8 @@ public class PortalConfigurationPage
   private String currentMapMarkerName;
   private String currentMapMarkerIcon;
   private String currentInteractionSoundEffectId;
+  private boolean currentCollisionInteraction;
+  private boolean currentUseInteraction;
 
   public PortalConfigurationPage(
       @Nonnull PlayerRef playerRef,
@@ -108,6 +110,9 @@ public class PortalConfigurationPage
 
     commandBuilder.set("#InteractionSoundEffectId #Input.Value", currentInteractionSoundEffectId);
 
+    commandBuilder.set("#CollisionInteraction #CheckBox.Value", currentCollisionInteraction);
+    commandBuilder.set("#UseInteraction #CheckBox.Value", currentUseInteraction);
+
     // Update visibility based on type
     updateSectionVisibility(commandBuilder);
 
@@ -134,7 +139,9 @@ public class PortalConfigurationPage
             .append("@Type", "#Type #Input.Value")
             .append("@MapMarkerName", "#MapMarkerName #Input.Value")
             .append("@MapMarkerIcon", "#MapMarkerIcon #Input.Value")
-            .append("@InteractionSoundEffectId", "#InteractionSoundEffectId #Input.Value"));
+            .append("@InteractionSoundEffectId", "#InteractionSoundEffectId #Input.Value")
+            .append("@CollisionInteraction", "#CollisionInteraction #CheckBox.Value")
+            .append("@UseInteraction", "#UseInteraction #CheckBox.Value"));
   }
 
   private void buildCommandList(
@@ -296,6 +303,8 @@ public class PortalConfigurationPage
     // Config is expected to be normalized (all fields non-null)
     this.currentType = config.getType();
     this.currentInteractionSoundEffectId = config.getInteractionSoundEffectId();
+    this.currentCollisionInteraction = config.getCollisionInteraction();
+    this.currentUseInteraction = config.getUseInteraction();
 
     this.currentCommands.clear();
     for (PortalConfigComponent.CommandEntry entry : config.getCommands()) {
@@ -411,7 +420,9 @@ public class PortalConfigurationPage
             null,
             null,
             commandsArray,
-            data.interactionSoundEffectId);
+            data.interactionSoundEffectId,
+            data.collisionInteraction,
+            data.useInteraction);
 
     Store<ChunkStore> blockStore = blockRef.getStore();
     blockStore.putComponent(blockRef, PortalConfigComponent.getComponentType(), newConfig);
@@ -453,6 +464,8 @@ public class PortalConfigurationPage
     public String mapMarkerName;
     public String mapMarkerIcon;
     public String interactionSoundEffectId;
+    public boolean collisionInteraction;
+    public boolean useInteraction;
     public String index;
 
     static {
@@ -497,6 +510,16 @@ public class PortalConfigurationPage
                   new KeyedCodec<>("@InteractionSoundEffectId", Codec.STRING),
                   (o, i) -> o.interactionSoundEffectId = i,
                   o -> o.interactionSoundEffectId)
+              .add()
+              .append(
+                  new KeyedCodec<>("@CollisionInteraction", Codec.BOOLEAN),
+                  (o, i) -> o.collisionInteraction = i,
+                  o -> o.collisionInteraction)
+              .add()
+              .append(
+                  new KeyedCodec<>("@UseInteraction", Codec.BOOLEAN),
+                  (o, i) -> o.useInteraction = i,
+                  o -> o.useInteraction)
               .add()
               .append(new KeyedCodec<>("Index", Codec.STRING), (o, i) -> o.index = i, o -> o.index)
               .add()
