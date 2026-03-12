@@ -73,6 +73,10 @@ public class AdminPortalInteraction extends SimpleBlockInteraction {
     final var playerInConfigurationMode =
         AdminPortalsPlugin.get().getConfigurationModeManager().isInConfigurationMode(playerRef);
 
+    final var hasLoginCooldown = AdminPortalsPlugin.get().getJoinWorldCooldown().hasLoginCooldown(playerRef.getUuid());
+    if(hasLoginCooldown)
+      return;
+
     // Necessary for now as Use interactions don't apply cooldowns
     if (interactionType == InteractionType.Use
         && checkHasAndApplyCooldown(interactionContext.getChain(), cooldownHandler)
