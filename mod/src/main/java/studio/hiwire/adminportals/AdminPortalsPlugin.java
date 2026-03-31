@@ -29,6 +29,7 @@ import studio.hiwire.adminportals.component.PortalConfigComponent;
 import studio.hiwire.adminportals.configmode.ConfigurationModeManager;
 import studio.hiwire.adminportals.interaction.AdminPortalInteraction;
 import studio.hiwire.adminportals.placeholder.PlaceholderManager;
+import studio.hiwire.adminportals.util.JoinWorldCooldown;
 import studio.hiwire.adminportals.util.TranslationFileManager;
 
 public class AdminPortalsPlugin extends JavaPlugin {
@@ -47,6 +48,7 @@ public class AdminPortalsPlugin extends JavaPlugin {
   @Getter private ComponentType<ChunkStore, PortalConfigComponent> adminPortalConfigComponentType;
   @Getter private PlaceholderManager placeholderManager;
   @Getter private ConfigurationModeManager configurationModeManager;
+  @Getter private JoinWorldCooldown joinWorldCooldown;
 
   public AdminPortalsPlugin(@NonNullDecl JavaPluginInit init) throws IOException {
     super(init);
@@ -58,6 +60,7 @@ public class AdminPortalsPlugin extends JavaPlugin {
     INSTANCE = this;
     placeholderManager = new PlaceholderManager();
     configurationModeManager = new ConfigurationModeManager(getEventRegistry());
+    joinWorldCooldown = new JoinWorldCooldown(this, 2000);
 
     getCodecRegistry(Interaction.CODEC)
         .register(
@@ -78,6 +81,7 @@ public class AdminPortalsPlugin extends JavaPlugin {
 
   @Override
   protected void shutdown() {
+    joinWorldCooldown.unregisterListeners();
     configurationModeManager.shutdown();
   }
 
