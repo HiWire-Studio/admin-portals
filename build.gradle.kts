@@ -1,10 +1,12 @@
 import com.diffplug.gradle.spotless.SpotlessExtension
+import nl.littlerobots.vcu.plugin.resolver.VersionSelectors
 import org.jetbrains.gradle.ext.ProjectSettings
 import org.jetbrains.gradle.ext.runConfigurations
 
 plugins {
     alias(libs.plugins.spotless) apply false
     alias(libs.plugins.idea.ext)
+    alias(libs.plugins.version.catalog.update)
 }
 
 subprojects {
@@ -13,14 +15,6 @@ subprojects {
 
     repositories {
         mavenCentral()
-        maven {
-            url = uri("https://nexus.hiwire.studio/repository/hiwire-group-internal")
-            credentials {
-                username = findProperty("hiwireMavenRepoUser") as String? ?: System.getenv("HIWIRE_MAVEN_REPO_USER")
-                password =
-                    findProperty("hiwireMavenRepoPassword") as String? ?: System.getenv("HIWIRE_MAVEN_REPO_PASSWORD")
-            }
-        }
     }
 
     configure<JavaPluginExtension> {
@@ -57,4 +51,13 @@ idea {
             }
         }
     }
+}
+
+versionCatalogUpdate {
+  versionSelector(VersionSelectors.STABLE)
+  sortByKey = false
+
+  keep {
+    keepUnusedVersions = true
+  }
 }
