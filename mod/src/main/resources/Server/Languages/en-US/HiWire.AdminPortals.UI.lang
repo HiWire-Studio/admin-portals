@@ -3,6 +3,16 @@ PortalConfigurationPage.Type = Type
 PortalConfigurationPage.Command = Command
 PortalConfigurationPage.Command.Placeholder = tp {PlayerUsername} 0 100 0
 PortalConfigurationPage.ExecuteAs = Execute As
+PortalConfigurationPage.ServerHost = Server Host
+PortalConfigurationPage.ServerHost.Placeholder = play.example.com
+PortalConfigurationPage.ServerPort = Server Port
+PortalConfigurationPage.ServerPort.Placeholder = 5520
+PortalConfigurationPage.WorldName = World Name
+PortalConfigurationPage.WorldName.Placeholder = default
+PortalConfigurationPage.WorldX = World X
+PortalConfigurationPage.WorldY = World Y
+PortalConfigurationPage.WorldZ = World Z
+PortalConfigurationPage.WorldCoordinate.Placeholder = Leave empty for spawn/default
 PortalConfigurationPage.MapMarker = "Map Marker"
 PortalConfigurationPage.MapMarker.Text = Text
 PortalConfigurationPage.MapMarkerText.Placeholder = Leave empty to hide
@@ -17,6 +27,8 @@ PortalConfigurationPage.UseInteraction = Use
 PortalConfigurationPage.Save = SAVE
 
 PortalType.Command = Command
+PortalType.Server = Server
+PortalType.World = World
 
 CommandSender.Server = Server
 CommandSender.Player = Player

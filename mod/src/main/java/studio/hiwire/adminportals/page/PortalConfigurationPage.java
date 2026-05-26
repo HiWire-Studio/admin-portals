@@ -57,6 +57,16 @@ public class PortalConfigurationPage
   private static final String MSG_CMD_NOT_SAVED = MSG_CONFIG_PORTAL + ".Command.NotSaved";
   private static final String MSG_CMD_NOT_SAVED_DETAIL_CMD_MISSING =
       MSG_CONFIG_PORTAL + ".Command.NotSaved.Detail.CommandMissing";
+  private static final String MSG_SERVER_NOT_SAVED = MSG_CONFIG_PORTAL + ".Server.NotSaved";
+  private static final String MSG_SERVER_NOT_SAVED_DETAIL_HOST_MISSING =
+      MSG_CONFIG_PORTAL + ".Server.NotSaved.Detail.HostMissing";
+  private static final String MSG_SERVER_NOT_SAVED_DETAIL_PORT_INVALID =
+      MSG_CONFIG_PORTAL + ".Server.NotSaved.Detail.PortInvalid";
+  private static final String MSG_WORLD_NOT_SAVED = MSG_CONFIG_PORTAL + ".World.NotSaved";
+  private static final String MSG_WORLD_NOT_SAVED_DETAIL_NAME_MISSING =
+      MSG_CONFIG_PORTAL + ".World.NotSaved.Detail.NameMissing";
+  private static final String MSG_WORLD_NOT_SAVED_DETAIL_COORDINATES_INVALID =
+      MSG_CONFIG_PORTAL + ".World.NotSaved.Detail.CoordinatesInvalid";
   private static final String MSG_PORTAL_SAVED = MSG_CONFIG_PORTAL + ".Saved";
   private static final String MSG_UNKNOWN_PLACEHOLDERS = MSG_CONFIG_PORTAL + ".UnknownPlaceholders";
   private static final String MSG_NO_PERMISSION = MSG_CONFIG_PORTAL + ".Edit.NoPermission";
@@ -65,6 +75,15 @@ public class PortalConfigurationPage
 
   private PortalConfigComponent.Type currentType;
   private final List<PortalConfigComponent.CommandEntry> currentCommands = new ObjectArrayList<>();
+  private String currentServerHost;
+  private int currentServerPort;
+  private String currentWorldName;
+  @Nullable private Double currentWorldX;
+  @Nullable private Double currentWorldY;
+  @Nullable private Double currentWorldZ;
+  private String currentWorldXText;
+  private String currentWorldYText;
+  private String currentWorldZText;
   private String currentMapMarkerName;
   private String currentMapMarkerIcon;
   private String currentInteractionSoundEffectId;
@@ -105,6 +124,15 @@ public class PortalConfigurationPage
     // Build command list
     buildCommandList(commandBuilder, eventBuilder);
 
+    commandBuilder.set("#ServerHost #Input.Value", currentServerHost);
+    commandBuilder.set(
+        "#ServerPort #Input.Value",
+        currentServerPort == 0 ? "" : String.valueOf(currentServerPort));
+    commandBuilder.set("#WorldName #Input.Value", currentWorldName);
+    commandBuilder.set("#WorldX #Input.Value", currentWorldXText);
+    commandBuilder.set("#WorldY #Input.Value", currentWorldYText);
+    commandBuilder.set("#WorldZ #Input.Value", currentWorldZText);
+
     commandBuilder.set("#MapMarkerName #Input.Value", currentMapMarkerName);
     commandBuilder.set("#MapMarkerIcon #Input.Value", currentMapMarkerIcon);
 
@@ -137,6 +165,12 @@ public class PortalConfigurationPage
         new EventData()
             .append("Action", "Save")
             .append("@Type", "#Type #Input.Value")
+            .append("@ServerHost", "#ServerHost #Input.Value")
+            .append("@ServerPort", "#ServerPort #Input.Value")
+            .append("@WorldName", "#WorldName #Input.Value")
+            .append("@WorldX", "#WorldX #Input.Value")
+            .append("@WorldY", "#WorldY #Input.Value")
+            .append("@WorldZ", "#WorldZ #Input.Value")
             .append("@MapMarkerName", "#MapMarkerName #Input.Value")
             .append("@MapMarkerIcon", "#MapMarkerIcon #Input.Value")
             .append("@InteractionSoundEffectId", "#InteractionSoundEffectId #Input.Value")
@@ -211,7 +245,11 @@ public class PortalConfigurationPage
 
   private void updateSectionVisibility(@Nonnull UICommandBuilder commandBuilder) {
     boolean isCommand = currentType == PortalConfigComponent.Type.Command;
+    boolean isServer = currentType == PortalConfigComponent.Type.Server;
+    boolean isWorld = currentType == PortalConfigComponent.Type.World;
     commandBuilder.set("#CommandSection.Visible", isCommand);
+    commandBuilder.set("#ServerSection.Visible", isServer);
+    commandBuilder.set("#WorldSection.Visible", isWorld);
   }
 
   @Override
@@ -285,17 +323,33 @@ public class PortalConfigurationPage
               Message.translation(MSG_NO_PERMISSION)
                   .param(Params.MOD_PREFIX, PREFIX)
                   .param(Params.PERMISSION, Permissions.PORTAL_CONFIG_EDIT));
+          sendUpdate();
           return;
         }
 
+        boolean saved = false;
         if (data.type == PortalConfigComponent.Type.Command) {
-          handleCommandSave(data);
+          saved = handleCommandSave(data);
+        } else if (data.type == PortalConfigComponent.Type.Server) {
+          saved = handleServerSave(data);
+        } else if (data.type == PortalConfigComponent.Type.World) {
+          saved = handleWorldSave(data);
         }
 
-        if (playerComponent != null) {
-          playerComponent.getPageManager().setPage(ref, store, Page.None);
-        }
+        finishSaveEvent(ref, store, playerComponent, saved);
         break;
+    }
+  }
+
+  void finishSaveEvent(
+      @Nonnull Ref<EntityStore> ref,
+      @Nonnull Store<EntityStore> store,
+      @Nullable Player playerComponent,
+      boolean saved) {
+    if (saved && playerComponent != null) {
+      playerComponent.getPageManager().setPage(ref, store, Page.None);
+    } else if (!saved) {
+      sendUpdate();
     }
   }
 
@@ -305,6 +359,15 @@ public class PortalConfigurationPage
     this.currentInteractionSoundEffectId = config.getInteractionSoundEffectId();
     this.currentCollisionInteraction = config.getCollisionInteraction();
     this.currentUseInteraction = config.getUseInteraction();
+    this.currentServerHost = config.getServerHost();
+    this.currentServerPort = config.getServerPort();
+    this.currentWorldName = config.getWorldName();
+    this.currentWorldX = config.getWorldX();
+    this.currentWorldY = config.getWorldY();
+    this.currentWorldZ = config.getWorldZ();
+    this.currentWorldXText = formatCoordinate(currentWorldX);
+    this.currentWorldYText = formatCoordinate(currentWorldY);
+    this.currentWorldZText = formatCoordinate(currentWorldZ);
 
     this.currentCommands.clear();
     for (PortalConfigComponent.CommandEntry entry : config.getCommands()) {
@@ -394,7 +457,7 @@ public class PortalConfigurationPage
     worldChunk.markNeedsSaving();
   }
 
-  private void handleCommandSave(PageData data) {
+  private boolean handleCommandSave(PageData data) {
     // Filter to non-empty commands
     boolean hasNonEmptyCommand =
         currentCommands.stream()
@@ -405,7 +468,7 @@ public class PortalConfigurationPage
           Message.translation(MSG_CMD_NOT_SAVED)
               .param(Params.DETAIL, Message.translation(MSG_CMD_NOT_SAVED_DETAIL_CMD_MISSING))
               .param(Params.MOD_PREFIX, PREFIX));
-      return;
+      return false;
     }
 
     // Remove empty commands
@@ -415,11 +478,15 @@ public class PortalConfigurationPage
         currentCommands.toArray(new PortalConfigComponent.CommandEntry[0]);
 
     PortalConfigComponent newConfig =
-        new PortalConfigComponent(
+        createConfig(
             data.type != null ? data.type : PortalConfigComponent.DEFAULT_TYPE,
-            null,
-            null,
             commandsArray,
+            currentServerHost,
+            currentServerPort,
+            currentWorldName,
+            currentWorldX,
+            currentWorldY,
+            currentWorldZ,
             data.interactionSoundEffectId,
             data.collisionInteraction,
             data.useInteraction);
@@ -451,6 +518,181 @@ public class PortalConfigurationPage
         }
       }
     }
+    return true;
+  }
+
+  private boolean handleServerSave(PageData data) {
+    String serverHost = data.serverHost != null ? data.serverHost.trim() : "";
+    Integer serverPort = parseServerPort(data.serverPort);
+
+    if (serverHost.isEmpty()) {
+      playerRef.sendMessage(
+          Message.translation(MSG_SERVER_NOT_SAVED)
+              .param(Params.DETAIL, Message.translation(MSG_SERVER_NOT_SAVED_DETAIL_HOST_MISSING))
+              .param(Params.MOD_PREFIX, PREFIX));
+      return false;
+    }
+
+    if (serverPort == null || serverPort < 1 || serverPort > 65535) {
+      playerRef.sendMessage(
+          Message.translation(MSG_SERVER_NOT_SAVED)
+              .param(Params.DETAIL, Message.translation(MSG_SERVER_NOT_SAVED_DETAIL_PORT_INVALID))
+              .param(Params.MOD_PREFIX, PREFIX));
+      return false;
+    }
+
+    currentServerHost = serverHost;
+    currentServerPort = serverPort;
+
+    PortalConfigComponent.CommandEntry[] commandsArray =
+        currentCommands.toArray(new PortalConfigComponent.CommandEntry[0]);
+
+    PortalConfigComponent newConfig =
+        createConfig(
+            PortalConfigComponent.Type.Server,
+            commandsArray,
+            currentServerHost,
+            currentServerPort,
+            currentWorldName,
+            currentWorldX,
+            currentWorldY,
+            currentWorldZ,
+            data.interactionSoundEffectId,
+            data.collisionInteraction,
+            data.useInteraction);
+
+    Store<ChunkStore> blockStore = blockRef.getStore();
+    blockStore.putComponent(blockRef, PortalConfigComponent.getComponentType(), newConfig);
+
+    updateBlockMapMarker(blockStore, data.mapMarkerName, data.mapMarkerIcon);
+
+    playerRef.sendMessage(Message.translation(MSG_PORTAL_SAVED).param(Params.MOD_PREFIX, PREFIX));
+    return true;
+  }
+
+  private boolean handleWorldSave(PageData data) {
+    String worldName = data.worldName != null ? data.worldName.trim() : "";
+    String worldXText = normalizeInputText(data.worldX);
+    String worldYText = normalizeInputText(data.worldY);
+    String worldZText = normalizeInputText(data.worldZ);
+
+    if (worldName.isEmpty()) {
+      playerRef.sendMessage(
+          Message.translation(MSG_WORLD_NOT_SAVED)
+              .param(Params.DETAIL, Message.translation(MSG_WORLD_NOT_SAVED_DETAIL_NAME_MISSING))
+              .param(Params.MOD_PREFIX, PREFIX));
+      return false;
+    }
+
+    boolean hasAnyCoordinate =
+        !worldXText.isEmpty() || !worldYText.isEmpty() || !worldZText.isEmpty();
+    Double worldX = hasAnyCoordinate ? parseCoordinate(worldXText) : null;
+    Double worldY = hasAnyCoordinate ? parseCoordinate(worldYText) : null;
+    Double worldZ = hasAnyCoordinate ? parseCoordinate(worldZText) : null;
+
+    if (hasAnyCoordinate && (worldX == null || worldY == null || worldZ == null)) {
+      playerRef.sendMessage(
+          Message.translation(MSG_WORLD_NOT_SAVED)
+              .param(
+                  Params.DETAIL,
+                  Message.translation(MSG_WORLD_NOT_SAVED_DETAIL_COORDINATES_INVALID))
+              .param(Params.MOD_PREFIX, PREFIX));
+      return false;
+    }
+
+    currentWorldName = worldName;
+    currentWorldX = worldX;
+    currentWorldY = worldY;
+    currentWorldZ = worldZ;
+    currentWorldXText = hasAnyCoordinate ? worldXText : "";
+    currentWorldYText = hasAnyCoordinate ? worldYText : "";
+    currentWorldZText = hasAnyCoordinate ? worldZText : "";
+
+    PortalConfigComponent.CommandEntry[] commandsArray =
+        currentCommands.toArray(new PortalConfigComponent.CommandEntry[0]);
+
+    PortalConfigComponent newConfig =
+        createConfig(
+            data.type != null ? data.type : currentType,
+            commandsArray,
+            currentServerHost,
+            currentServerPort,
+            currentWorldName,
+            currentWorldX,
+            currentWorldY,
+            currentWorldZ,
+            data.interactionSoundEffectId,
+            data.collisionInteraction,
+            data.useInteraction);
+
+    Store<ChunkStore> blockStore = blockRef.getStore();
+    blockStore.putComponent(blockRef, PortalConfigComponent.getComponentType(), newConfig);
+
+    updateBlockMapMarker(blockStore, data.mapMarkerName, data.mapMarkerIcon);
+
+    playerRef.sendMessage(Message.translation(MSG_PORTAL_SAVED).param(Params.MOD_PREFIX, PREFIX));
+    return true;
+  }
+
+  @Nullable private static Integer parseServerPort(@Nullable String value) {
+    if (value == null || value.trim().isEmpty()) {
+      return null;
+    }
+    try {
+      return Integer.parseInt(value.trim());
+    } catch (NumberFormatException e) {
+      return null;
+    }
+  }
+
+  @Nullable private static Double parseCoordinate(@Nullable String value) {
+    if (value == null || value.trim().isEmpty()) {
+      return null;
+    }
+    try {
+      double coordinate = Double.parseDouble(value.trim());
+      return Double.isFinite(coordinate) ? coordinate : null;
+    } catch (NumberFormatException e) {
+      return null;
+    }
+  }
+
+  private static String normalizeInputText(@Nullable String value) {
+    return value != null ? value.trim() : "";
+  }
+
+  private static String formatCoordinate(@Nullable Double value) {
+    return value != null ? value.toString() : "";
+  }
+
+  private static PortalConfigComponent createConfig(
+      @Nonnull PortalConfigComponent.Type type,
+      @Nonnull PortalConfigComponent.CommandEntry[] commands,
+      @Nonnull String serverHost,
+      int serverPort,
+      @Nonnull String worldName,
+      @Nullable Double worldX,
+      @Nullable Double worldY,
+      @Nullable Double worldZ,
+      @Nullable String interactionSoundEffectId,
+      boolean collisionInteraction,
+      boolean useInteraction) {
+    PortalConfigComponent config =
+        new PortalConfigComponent(
+            type,
+            serverHost,
+            serverPort,
+            worldName,
+            worldX,
+            worldY,
+            worldZ,
+            null,
+            null,
+            commands,
+            interactionSoundEffectId,
+            collisionInteraction,
+            useInteraction);
+    return config;
   }
 
   @ToString
@@ -461,6 +703,12 @@ public class PortalConfigurationPage
     public PortalConfigComponent.Type type;
     public String command;
     public PortalConfigComponent.CommandSender commandSender;
+    public String serverHost;
+    public String serverPort;
+    public String worldName;
+    public String worldX;
+    public String worldY;
+    public String worldZ;
     public String mapMarkerName;
     public String mapMarkerIcon;
     public String interactionSoundEffectId;
@@ -495,6 +743,30 @@ public class PortalConfigurationPage
                           EnumCodec.EnumStyle.CAMEL_CASE)),
                   (o, i) -> o.commandSender = i,
                   o -> o.commandSender)
+              .add()
+              .append(
+                  new KeyedCodec<>("@ServerHost", Codec.STRING),
+                  (o, i) -> o.serverHost = i,
+                  o -> o.serverHost)
+              .add()
+              .append(
+                  new KeyedCodec<>("@ServerPort", Codec.STRING),
+                  (o, i) -> o.serverPort = i,
+                  o -> o.serverPort)
+              .add()
+              .append(
+                  new KeyedCodec<>("@WorldName", Codec.STRING),
+                  (o, i) -> o.worldName = i,
+                  o -> o.worldName)
+              .add()
+              .append(
+                  new KeyedCodec<>("@WorldX", Codec.STRING), (o, i) -> o.worldX = i, o -> o.worldX)
+              .add()
+              .append(
+                  new KeyedCodec<>("@WorldY", Codec.STRING), (o, i) -> o.worldY = i, o -> o.worldY)
+              .add()
+              .append(
+                  new KeyedCodec<>("@WorldZ", Codec.STRING), (o, i) -> o.worldZ = i, o -> o.worldZ)
               .add()
               .append(
                   new KeyedCodec<>("@MapMarkerName", Codec.STRING),
