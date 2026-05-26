@@ -6,10 +6,23 @@ Command.Placeholders.ConfigMode.Toggle.Disabled={ModPrefix} Configuration mode d
 
 Interaction.Portal.NotConfigured=This portal is not configured
 Interaction.Portal.BlockEntityMissing={ModPrefix} Block entity not found - this is a bug, please report it
+Interaction.Portal.Server.InvalidConfig={ModPrefix} Server portal is not configured correctly (host: {Host}, port: {Port})
+Interaction.Portal.Server.TransferFailed={ModPrefix} Failed to transfer to {Host}:{Port}: {Error}
+Interaction.Portal.World.InvalidConfig={ModPrefix} World portal is not configured correctly (world name is empty)
+Interaction.Portal.World.IncompleteCoordinates={ModPrefix} World portal coordinates must include X, Y, and Z (world: {WorldName}, x: {X}, y: {Y}, z: {Z})
+Interaction.Portal.World.NotFound={ModPrefix} World '{WorldName}' was not found
+Interaction.Portal.World.NotInWorld={ModPrefix} You are not currently in a world
+Interaction.Portal.World.TeleportFailed={ModPrefix} Failed to teleport: {Error}
 
 Configuration.Portal.Command.NotSaved={ModPrefix} Portal configuration not saved: {Detail}
 Configuration.Portal.Command.NotSaved.Detail.CommandMissing=Command is empty
 Configuration.Portal.Command.NotSaved.Detail.ExecuteAsMissing=Execute As / CommandSender is missing
+Configuration.Portal.Server.NotSaved={ModPrefix} Portal configuration not saved: {Detail}
+Configuration.Portal.Server.NotSaved.Detail.HostMissing=Server host is empty
+Configuration.Portal.Server.NotSaved.Detail.PortInvalid=Server port must be between 1 and 65535
+Configuration.Portal.World.NotSaved={ModPrefix} Portal configuration not saved: {Detail}
+Configuration.Portal.World.NotSaved.Detail.NameMissing=World name is empty
+Configuration.Portal.World.NotSaved.Detail.CoordinatesInvalid=Coordinates must be either all blank or valid X, Y, and Z numbers
 
 Configuration.Portal.Saved={ModPrefix} Portal configuration saved
 Configuration.Portal.UnknownPlaceholders={ModPrefix} Warning: Unknown placeholders in command: {PlaceholderList}

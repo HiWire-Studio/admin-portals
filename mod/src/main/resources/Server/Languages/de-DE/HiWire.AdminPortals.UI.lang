@@ -20,3 +20,15 @@ PortalType.Command = Befehl
 
 CommandSender.Server = Server
 CommandSender.Player = Spieler
+PortalConfigurationPage.ServerHost = Serverhost
+PortalConfigurationPage.ServerHost.Placeholder = play.example.com
+PortalConfigurationPage.ServerPort = Serverport
+PortalConfigurationPage.ServerPort.Placeholder = 5520
+PortalConfigurationPage.WorldName = Weltname
+PortalConfigurationPage.WorldName.Placeholder = default
+PortalConfigurationPage.WorldX = Welt X
+PortalConfigurationPage.WorldY = Welt Y
+PortalConfigurationPage.WorldZ = Welt Z
+PortalConfigurationPage.WorldCoordinate.Placeholder = Leer lassen fuer Spawn/Standard
+PortalType.Server = Server
+PortalType.World = Welt

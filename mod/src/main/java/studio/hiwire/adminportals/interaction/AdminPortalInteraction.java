@@ -8,7 +8,8 @@ import com.hypixel.hytale.component.CommandBuffer;
 import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.logger.HytaleLogger;
 import com.hypixel.hytale.math.util.ChunkUtil;
-import com.hypixel.hytale.math.vector.Vector3i;
+import com.hypixel.hytale.math.vector.Rotation3f;
+import com.hypixel.hytale.math.vector.Transform;
 import com.hypixel.hytale.protocol.InteractionType;
 import com.hypixel.hytale.protocol.SoundCategory;
 import com.hypixel.hytale.server.core.Message;
@@ -19,10 +20,13 @@ import com.hypixel.hytale.server.core.entity.InteractionChain;
 import com.hypixel.hytale.server.core.entity.InteractionContext;
 import com.hypixel.hytale.server.core.entity.entities.Player;
 import com.hypixel.hytale.server.core.inventory.ItemStack;
+import com.hypixel.hytale.server.core.modules.entity.teleport.PendingTeleport;
+import com.hypixel.hytale.server.core.modules.entity.teleport.Teleport;
 import com.hypixel.hytale.server.core.modules.interaction.interaction.CooldownHandler;
 import com.hypixel.hytale.server.core.modules.interaction.interaction.config.client.SimpleBlockInteraction;
 import com.hypixel.hytale.server.core.permissions.PermissionsModule;
 import com.hypixel.hytale.server.core.universe.PlayerRef;
+import com.hypixel.hytale.server.core.universe.Universe;
 import com.hypixel.hytale.server.core.universe.world.SoundUtil;
 import com.hypixel.hytale.server.core.universe.world.World;
 import com.hypixel.hytale.server.core.universe.world.chunk.WorldChunk;
@@ -32,6 +36,8 @@ import java.util.Arrays;
 import java.util.logging.Level;
 import org.checkerframework.checker.nullness.compatqual.NonNullDecl;
 import org.checkerframework.checker.nullness.compatqual.NullableDecl;
+import org.joml.Vector3d;
+import org.joml.Vector3i;
 import studio.hiwire.adminportals.AdminPortalsPlugin;
 import studio.hiwire.adminportals.Permissions;
 import studio.hiwire.adminportals.TranslationKeys.Params;
@@ -48,6 +54,20 @@ public class AdminPortalInteraction extends SimpleBlockInteraction {
   // Message IDs
   private static final String MSG_PORTAL_NOT_CONFIGURED =
       CHAT_MESSAGES + ".Interaction.Portal.NotConfigured";
+  private static final String MSG_SERVER_INVALID_CONFIG =
+      CHAT_MESSAGES + ".Interaction.Portal.Server.InvalidConfig";
+  private static final String MSG_SERVER_TRANSFER_FAILED =
+      CHAT_MESSAGES + ".Interaction.Portal.Server.TransferFailed";
+  private static final String MSG_WORLD_INVALID_CONFIG =
+      CHAT_MESSAGES + ".Interaction.Portal.World.InvalidConfig";
+  private static final String MSG_WORLD_INCOMPLETE_COORDINATES =
+      CHAT_MESSAGES + ".Interaction.Portal.World.IncompleteCoordinates";
+  private static final String MSG_WORLD_NOT_FOUND =
+      CHAT_MESSAGES + ".Interaction.Portal.World.NotFound";
+  private static final String MSG_WORLD_NOT_IN_WORLD =
+      CHAT_MESSAGES + ".Interaction.Portal.World.NotInWorld";
+  private static final String MSG_WORLD_TELEPORT_FAILED =
+      CHAT_MESSAGES + ".Interaction.Portal.World.TeleportFailed";
   private static final String MSG_NO_PERMISSION_VIEW =
       CHAT_MESSAGES + ".Configuration.Portal.View.NoPermission";
   private static final String MSG_BLOCK_ENTITY_MISSING =
@@ -162,6 +182,14 @@ public class AdminPortalInteraction extends SimpleBlockInteraction {
     if (config.getType() == PortalConfigComponent.Type.Command) {
       handleCommandAction(config, playerRef, placeholderContext);
       playTeleportSound(actorRef, commandBuffer, config.getInteractionSoundEffectId());
+    } else if (config.getType() == PortalConfigComponent.Type.Server) {
+      if (handleServerAction(config, playerRef)) {
+        playTeleportSound(actorRef, commandBuffer, config.getInteractionSoundEffectId());
+      }
+    } else if (config.getType() == PortalConfigComponent.Type.World) {
+      if (handleWorldAction(config, playerRef, actorRef, commandBuffer)) {
+        playTeleportSound(actorRef, commandBuffer, config.getInteractionSoundEffectId());
+      }
     } else {
       LOGGER.at(Level.WARNING).log("Unsupported portal type: %s", config.getType());
     }
@@ -223,6 +251,159 @@ public class AdminPortalInteraction extends SimpleBlockInteraction {
         case Player -> CommandManager.get().handleCommand(playerRef, processedCommand);
       }
     }
+  }
+
+  private boolean handleServerAction(PortalConfigComponent config, PlayerRef playerRef) {
+    String host = config.getServerHost() != null ? config.getServerHost().trim() : "";
+    Integer port = config.getServerPort();
+
+    if (host.isBlank() || port == null || port < 1 || port > 65535) {
+      playerRef.sendMessage(
+          Message.translation(MSG_SERVER_INVALID_CONFIG)
+              .param(Params.MOD_PREFIX, PREFIX)
+              .param(Params.HOST, host)
+              .param(Params.PORT, port != null ? port : 0));
+      return false;
+    }
+
+    try {
+      playerRef.referToServer(host, port);
+      return true;
+    } catch (RuntimeException e) {
+      LOGGER.at(Level.WARNING).withCause(e).log(
+          "Failed to transfer player %s to server %s:%s", playerRef.getUuid(), host, port);
+      playerRef.sendMessage(
+          Message.translation(MSG_SERVER_TRANSFER_FAILED)
+              .param(Params.MOD_PREFIX, PREFIX)
+              .param(Params.HOST, host)
+              .param(Params.PORT, port)
+              .param(
+                  Params.ERROR,
+                  e.getMessage() != null ? e.getMessage() : e.getClass().getSimpleName()));
+      return false;
+    }
+  }
+
+  private boolean handleWorldAction(
+      PortalConfigComponent config,
+      PlayerRef playerRef,
+      Ref<EntityStore> actorRef,
+      CommandBuffer<EntityStore> commandBuffer) {
+    if (!validateWorldConfig(config, playerRef)) {
+      return false;
+    }
+
+    Player playerComponent = commandBuffer.getComponent(actorRef, Player.getComponentType());
+    if (!validateWorldPlayerReady(playerComponent, playerRef)) {
+      return false;
+    }
+
+    if (commandBuffer.getComponent(actorRef, Teleport.getComponentType()) != null
+        || commandBuffer.getComponent(actorRef, PendingTeleport.getComponentType()) != null) {
+      playerRef.sendMessage(
+          Message.translation(MSG_WORLD_TELEPORT_FAILED)
+              .param(Params.MOD_PREFIX, PREFIX)
+              .param(Params.ERROR, "Teleport already pending"));
+      return false;
+    }
+
+    String worldName = normalizedWorldName(config);
+    World targetWorld = Universe.get().getWorld(worldName);
+    if (targetWorld == null) {
+      playerRef.sendMessage(
+          Message.translation(MSG_WORLD_NOT_FOUND)
+              .param(Params.MOD_PREFIX, PREFIX)
+              .param(Params.WORLD_NAME, worldName));
+      return false;
+    }
+
+    try {
+      Teleport teleport;
+      if (hasAnyCoordinate(config)) {
+        teleport =
+            Teleport.createForPlayer(
+                targetWorld,
+                new Vector3d(config.getWorldX(), config.getWorldY(), config.getWorldZ()),
+                Rotation3f.IDENTITY);
+      } else {
+        var spawnProvider = targetWorld.getWorldConfig().getSpawnProvider();
+        Transform spawnPoint =
+            spawnProvider != null
+                ? spawnProvider.getSpawnPoint(targetWorld, playerRef.getUuid())
+                : new Transform();
+        teleport = Teleport.createForPlayer(targetWorld, spawnPoint);
+      }
+
+      commandBuffer.addComponent(actorRef, Teleport.getComponentType(), teleport);
+      return true;
+    } catch (RuntimeException e) {
+      LOGGER.at(Level.WARNING).withCause(e).log(
+          "Failed to teleport player %s to world %s", playerRef.getUuid(), worldName);
+      playerRef.sendMessage(
+          Message.translation(MSG_WORLD_TELEPORT_FAILED)
+              .param(Params.MOD_PREFIX, PREFIX)
+              .param(
+                  Params.ERROR,
+                  e.getMessage() != null ? e.getMessage() : e.getClass().getSimpleName()));
+      return false;
+    }
+  }
+
+  static boolean validateWorldConfig(PortalConfigComponent config, PlayerRef playerRef) {
+    String worldName = normalizedWorldName(config);
+    if (worldName.isBlank()) {
+      playerRef.sendMessage(
+          Message.translation(MSG_WORLD_INVALID_CONFIG).param(Params.MOD_PREFIX, PREFIX));
+      return false;
+    }
+
+    if (hasAnyCoordinate(config) && !hasAllCoordinates(config)) {
+      playerRef.sendMessage(
+          Message.translation(MSG_WORLD_INCOMPLETE_COORDINATES)
+              .param(Params.MOD_PREFIX, PREFIX)
+              .param(Params.WORLD_NAME, worldName)
+              .param(Params.X, formatCoordinate(config.getWorldX()))
+              .param(Params.Y, formatCoordinate(config.getWorldY()))
+              .param(Params.Z, formatCoordinate(config.getWorldZ())));
+      return false;
+    }
+
+    return true;
+  }
+
+  static boolean validateWorldPlayerReady(
+      @NullableDecl Player playerComponent, PlayerRef playerRef) {
+    if (playerComponent == null) {
+      playerRef.sendMessage(
+          Message.translation(MSG_WORLD_NOT_IN_WORLD).param(Params.MOD_PREFIX, PREFIX));
+      return false;
+    }
+
+    if (playerComponent.isWaitingForClientReady()) {
+      playerRef.sendMessage(
+          Message.translation(MSG_WORLD_TELEPORT_FAILED)
+              .param(Params.MOD_PREFIX, PREFIX)
+              .param(Params.ERROR, "Player client is not ready"));
+      return false;
+    }
+
+    return true;
+  }
+
+  static boolean hasAnyCoordinate(PortalConfigComponent config) {
+    return config.getWorldX() != null || config.getWorldY() != null || config.getWorldZ() != null;
+  }
+
+  private static boolean hasAllCoordinates(PortalConfigComponent config) {
+    return config.getWorldX() != null && config.getWorldY() != null && config.getWorldZ() != null;
+  }
+
+  private static String normalizedWorldName(PortalConfigComponent config) {
+    return config.getWorldName() != null ? config.getWorldName().trim() : "";
+  }
+
+  private static String formatCoordinate(Double coordinate) {
+    return coordinate != null ? coordinate.toString() : "";
   }
 
   private void playTeleportSound(

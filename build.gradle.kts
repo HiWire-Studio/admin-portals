@@ -22,6 +22,10 @@ subprojects {
         targetCompatibility = JavaVersion.VERSION_25
     }
 
+    tasks.withType<JavaCompile>().configureEach {
+        options.compilerArgs.add("-Xlint:deprecation")
+    }
+
     tasks.withType<Test> {
         useJUnitPlatform()
     }

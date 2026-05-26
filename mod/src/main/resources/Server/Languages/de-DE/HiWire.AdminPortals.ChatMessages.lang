@@ -6,10 +6,23 @@ Command.Placeholders.ConfigMode.Toggle.Disabled={ModPrefix} Konfigurationsmodus 
 
 Interaction.Portal.NotConfigured=Dieses Portal ist nicht konfiguriert
 Interaction.Portal.BlockEntityMissing={ModPrefix} Block-Entität nicht gefunden - dies ist ein Fehler, bitte melden
+Interaction.Portal.Server.InvalidConfig={ModPrefix} Serverportal ist nicht korrekt konfiguriert (Host: {Host}, Port: {Port})
+Interaction.Portal.Server.TransferFailed={ModPrefix} Transfer zu {Host}:{Port} fehlgeschlagen: {Error}
+Interaction.Portal.World.InvalidConfig={ModPrefix} Weltportal ist nicht korrekt konfiguriert (Weltname fehlt)
+Interaction.Portal.World.IncompleteCoordinates={ModPrefix} Weltportal-Koordinaten muessen X, Y und Z enthalten (Welt: {WorldName}, x: {X}, y: {Y}, z: {Z})
+Interaction.Portal.World.NotFound={ModPrefix} Welt '{WorldName}' wurde nicht gefunden
+Interaction.Portal.World.NotInWorld={ModPrefix} Du bist derzeit in keiner Welt
+Interaction.Portal.World.TeleportFailed={ModPrefix} Teleport fehlgeschlagen: {Error}
 
 Configuration.Portal.Command.NotSaved={ModPrefix} Portalkonfiguration wurde nicht gespeichert: {Detail}
 Configuration.Portal.Command.NotSaved.Detail.CommandMissing=Befehl fehlt
 Configuration.Portal.Command.NotSaved.Detail.ExecuteAsMissing=Ausführen als / CommandSender fehlt
+Configuration.Portal.Server.NotSaved={ModPrefix} Portalkonfiguration wurde nicht gespeichert: {Detail}
+Configuration.Portal.Server.NotSaved.Detail.HostMissing=Serverhost fehlt
+Configuration.Portal.Server.NotSaved.Detail.PortInvalid=Serverport muss zwischen 1 und 65535 liegen
+Configuration.Portal.World.NotSaved={ModPrefix} Portalkonfiguration wurde nicht gespeichert: {Detail}
+Configuration.Portal.World.NotSaved.Detail.NameMissing=Weltname fehlt
+Configuration.Portal.World.NotSaved.Detail.CoordinatesInvalid=Koordinaten muessen entweder alle leer oder gueltige X-, Y- und Z-Zahlen sein
 
 Configuration.Portal.Saved={ModPrefix} Portalkonfiguration wurde gespeichert
 Configuration.Portal.UnknownPlaceholders={ModPrefix} Warnung: Unbekannte Platzhalter im Befehl: {PlaceholderList}

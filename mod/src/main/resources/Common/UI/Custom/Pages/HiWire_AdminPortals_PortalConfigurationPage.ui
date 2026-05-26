@@ -88,6 +88,142 @@ $C.@PageOverlay {
         }
       }
 
+      // Server section (visible when Type = Server)
+      Group #ServerSection {
+        LayoutMode: Top;
+
+        // Top separator
+        Group {
+          Anchor: (Height: 4, Top: 4);
+          Background: (TexturePath: "../Common/OptionBackgroundPatch.png", Border: 0);
+        }
+
+        // Server Host
+        @SettingRow #ServerHost {
+          @SettingLabel {
+            @Text = %HiWire.AdminPortals.UI.PortalConfigurationPage.ServerHost;
+          }
+
+          TextField #Input {
+            Anchor: (Height: @RowHeight);
+            FlexWeight: 1;
+            PlaceholderText: %HiWire.AdminPortals.UI.PortalConfigurationPage.ServerHost.Placeholder;
+            Style: $C.@DefaultInputFieldStyle;
+            PlaceholderStyle: $C.@DefaultInputFieldPlaceholderStyle;
+            Background: $C.@InputBoxBackground;
+            Padding: (Horizontal: 10);
+          }
+        }
+
+        // Server Port
+        @SettingRow #ServerPort {
+          @SettingLabel {
+            @Text = %HiWire.AdminPortals.UI.PortalConfigurationPage.ServerPort;
+          }
+
+          TextField #Input {
+            Anchor: (Height: @RowHeight);
+            FlexWeight: 1;
+            PlaceholderText: %HiWire.AdminPortals.UI.PortalConfigurationPage.ServerPort.Placeholder;
+            Style: $C.@DefaultInputFieldStyle;
+            PlaceholderStyle: $C.@DefaultInputFieldPlaceholderStyle;
+            Background: $C.@InputBoxBackground;
+            Padding: (Horizontal: 10);
+          }
+        }
+
+        // Bottom separator
+        Group {
+          Anchor: (Height: 4, Bottom: 6);
+          Background: (TexturePath: "../Common/OptionBackgroundPatch.png", Border: 0);
+        }
+      }
+
+      // World section (visible when Type = World)
+      Group #WorldSection {
+        LayoutMode: Top;
+
+        // Top separator
+        Group {
+          Anchor: (Height: 4, Top: 4);
+          Background: (TexturePath: "../Common/OptionBackgroundPatch.png", Border: 0);
+        }
+
+        // World Name
+        @SettingRow #WorldName {
+          @SettingLabel {
+            @Text = %HiWire.AdminPortals.UI.PortalConfigurationPage.WorldName;
+          }
+
+          TextField #Input {
+            Anchor: (Height: @RowHeight);
+            FlexWeight: 1;
+            PlaceholderText: %HiWire.AdminPortals.UI.PortalConfigurationPage.WorldName.Placeholder;
+            Style: $C.@DefaultInputFieldStyle;
+            PlaceholderStyle: $C.@DefaultInputFieldPlaceholderStyle;
+            Background: $C.@InputBoxBackground;
+            Padding: (Horizontal: 10);
+          }
+        }
+
+        // World X
+        @SettingRow #WorldX {
+          @SettingLabel {
+            @Text = %HiWire.AdminPortals.UI.PortalConfigurationPage.WorldX;
+          }
+
+          TextField #Input {
+            Anchor: (Height: @RowHeight);
+            FlexWeight: 1;
+            PlaceholderText: %HiWire.AdminPortals.UI.PortalConfigurationPage.WorldCoordinate.Placeholder;
+            Style: $C.@DefaultInputFieldStyle;
+            PlaceholderStyle: $C.@DefaultInputFieldPlaceholderStyle;
+            Background: $C.@InputBoxBackground;
+            Padding: (Horizontal: 10);
+          }
+        }
+
+        // World Y
+        @SettingRow #WorldY {
+          @SettingLabel {
+            @Text = %HiWire.AdminPortals.UI.PortalConfigurationPage.WorldY;
+          }
+
+          TextField #Input {
+            Anchor: (Height: @RowHeight);
+            FlexWeight: 1;
+            PlaceholderText: %HiWire.AdminPortals.UI.PortalConfigurationPage.WorldCoordinate.Placeholder;
+            Style: $C.@DefaultInputFieldStyle;
+            PlaceholderStyle: $C.@DefaultInputFieldPlaceholderStyle;
+            Background: $C.@InputBoxBackground;
+            Padding: (Horizontal: 10);
+          }
+        }
+
+        // World Z
+        @SettingRow #WorldZ {
+          @SettingLabel {
+            @Text = %HiWire.AdminPortals.UI.PortalConfigurationPage.WorldZ;
+          }
+
+          TextField #Input {
+            Anchor: (Height: @RowHeight);
+            FlexWeight: 1;
+            PlaceholderText: %HiWire.AdminPortals.UI.PortalConfigurationPage.WorldCoordinate.Placeholder;
+            Style: $C.@DefaultInputFieldStyle;
+            PlaceholderStyle: $C.@DefaultInputFieldPlaceholderStyle;
+            Background: $C.@InputBoxBackground;
+            Padding: (Horizontal: 10);
+          }
+        }
+
+        // Bottom separator
+        Group {
+          Anchor: (Height: 4, Bottom: 6);
+          Background: (TexturePath: "../Common/OptionBackgroundPatch.png", Border: 0);
+        }
+      }
+
       // Spacer between command and interaction sound effect sections
       Group {
         Anchor: (Height: 18);

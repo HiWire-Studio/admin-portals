@@ -16,7 +16,6 @@ import lombok.RequiredArgsConstructor;
 import org.checkerframework.checker.nullness.compatqual.NullableDecl;
 import studio.hiwire.adminportals.AdminPortalsPlugin;
 
-@AllArgsConstructor
 @NoArgsConstructor
 @Getter
 public class PortalConfigComponent implements Component<ChunkStore> {
@@ -30,14 +29,128 @@ public class PortalConfigComponent implements Component<ChunkStore> {
       "SFX_Portal_Neutral_Teleport_Local";
   public static final boolean DEFAULT_COLLISION_INTERACTION = true;
   public static final boolean DEFAULT_USE_INTERACTION = true;
+  public static final String DEFAULT_SERVER_HOST = "";
+  public static final int DEFAULT_SERVER_PORT = 5520;
+  public static final String DEFAULT_WORLD_NAME = "";
 
   private Type type;
+  private String serverHost;
+  private Integer serverPort;
+  private String worldName;
+  private Double worldX;
+  private Double worldY;
+  private Double worldZ;
   private String command;
   private CommandSender commandSender;
   private CommandEntry[] commands;
   private String interactionSoundEffectId;
   private Boolean collisionInteraction;
   private Boolean useInteraction;
+
+  public PortalConfigComponent(
+      Type type,
+      String command,
+      CommandSender commandSender,
+      CommandEntry[] commands,
+      String interactionSoundEffectId,
+      Boolean collisionInteraction,
+      Boolean useInteraction) {
+    this(
+        type,
+        DEFAULT_SERVER_HOST,
+        DEFAULT_SERVER_PORT,
+        DEFAULT_WORLD_NAME,
+        null,
+        null,
+        null,
+        command,
+        commandSender,
+        commands,
+        interactionSoundEffectId,
+        collisionInteraction,
+        useInteraction);
+  }
+
+  public PortalConfigComponent(
+      Type type,
+      String serverHost,
+      Integer serverPort,
+      String command,
+      CommandSender commandSender,
+      CommandEntry[] commands,
+      String interactionSoundEffectId,
+      Boolean collisionInteraction,
+      Boolean useInteraction) {
+    this(
+        type,
+        serverHost,
+        serverPort,
+        DEFAULT_WORLD_NAME,
+        null,
+        null,
+        null,
+        command,
+        commandSender,
+        commands,
+        interactionSoundEffectId,
+        collisionInteraction,
+        useInteraction);
+  }
+
+  public PortalConfigComponent(
+      Type type,
+      String serverHost,
+      Integer serverPort,
+      String worldName,
+      Double worldX,
+      Double worldY,
+      Double worldZ,
+      String command,
+      CommandSender commandSender,
+      CommandEntry[] commands,
+      String interactionSoundEffectId,
+      Boolean collisionInteraction,
+      Boolean useInteraction) {
+    this.type = type;
+    this.serverHost = serverHost;
+    this.serverPort = serverPort;
+    this.worldName = worldName;
+    this.worldX = worldX;
+    this.worldY = worldY;
+    this.worldZ = worldZ;
+    this.command = command;
+    this.commandSender = commandSender;
+    this.commands = commands;
+    this.interactionSoundEffectId = interactionSoundEffectId;
+    this.collisionInteraction = collisionInteraction;
+    this.useInteraction = useInteraction;
+  }
+
+  public PortalConfigComponent(
+      Type type,
+      String command,
+      CommandSender commandSender,
+      CommandEntry[] commands,
+      String serverHost,
+      Integer serverPort,
+      String interactionSoundEffectId,
+      Boolean collisionInteraction,
+      Boolean useInteraction) {
+    this(
+        type,
+        serverHost,
+        serverPort,
+        DEFAULT_WORLD_NAME,
+        null,
+        null,
+        null,
+        command,
+        commandSender,
+        commands,
+        interactionSoundEffectId,
+        collisionInteraction,
+        useInteraction);
+  }
 
   /**
    * Returns a new component with legacy single-command fields migrated to the {@code commands}
@@ -61,6 +174,12 @@ public class PortalConfigComponent implements Component<ChunkStore> {
     }
     return new PortalConfigComponent(
         type,
+        serverHost,
+        serverPort,
+        worldName,
+        worldX,
+        worldY,
+        worldZ,
         null,
         null,
         migratedCommands,
@@ -76,6 +195,12 @@ public class PortalConfigComponent implements Component<ChunkStore> {
   public PortalConfigComponent normalized() {
     return new PortalConfigComponent(
         type != null ? type : DEFAULT_TYPE,
+        serverHost != null ? serverHost : DEFAULT_SERVER_HOST,
+        serverPort != null ? serverPort : DEFAULT_SERVER_PORT,
+        worldName != null ? worldName : DEFAULT_WORLD_NAME,
+        worldX,
+        worldY,
+        worldZ,
         null,
         null,
         commands != null ? commands : DEFAULT_COMMANDS,
@@ -101,6 +226,12 @@ public class PortalConfigComponent implements Component<ChunkStore> {
 
     return new PortalConfigComponent(
         this.type,
+        this.serverHost,
+        this.serverPort,
+        this.worldName,
+        this.worldX,
+        this.worldY,
+        this.worldZ,
         this.command,
         this.commandSender,
         clonedCommands,
@@ -114,7 +245,9 @@ public class PortalConfigComponent implements Component<ChunkStore> {
   }
 
   public enum Type {
-    Command
+    Command,
+    Server,
+    World
   }
 
   @RequiredArgsConstructor
@@ -168,6 +301,27 @@ public class PortalConfigComponent implements Component<ChunkStore> {
                     "Type", new EnumCodec<>(Type.class, EnumCodec.EnumStyle.CAMEL_CASE)),
                 (o, i) -> o.type = i,
                 o -> o.type)
+            .add()
+            .append(
+                new KeyedCodec<>("ServerHost", Codec.STRING),
+                (o, i) -> o.serverHost = i,
+                o -> o.serverHost)
+            .add()
+            .append(
+                new KeyedCodec<>("ServerPort", Codec.INTEGER),
+                (o, i) -> o.serverPort = i,
+                o -> o.serverPort)
+            .add()
+            .append(
+                new KeyedCodec<>("WorldName", Codec.STRING),
+                (o, i) -> o.worldName = i,
+                o -> o.worldName)
+            .add()
+            .append(new KeyedCodec<>("WorldX", Codec.DOUBLE), (o, i) -> o.worldX = i, o -> o.worldX)
+            .add()
+            .append(new KeyedCodec<>("WorldY", Codec.DOUBLE), (o, i) -> o.worldY = i, o -> o.worldY)
+            .add()
+            .append(new KeyedCodec<>("WorldZ", Codec.DOUBLE), (o, i) -> o.worldZ = i, o -> o.worldZ)
             .add()
             .append(
                 new KeyedCodec<>("Command", Codec.STRING), (o, i) -> o.command = i, o -> o.command)

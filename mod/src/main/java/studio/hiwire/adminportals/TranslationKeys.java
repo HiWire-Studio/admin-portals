@@ -20,5 +20,12 @@ public final class TranslationKeys {
     public static final String PLACEHOLDER_LIST = "PlaceholderList";
     public static final String PLACEHOLDER_AMOUNT = "PlaceholderAmount";
     public static final String PERMISSION = "Permission";
+    public static final String HOST = "Host";
+    public static final String PORT = "Port";
+    public static final String ERROR = "Error";
+    public static final String WORLD_NAME = "WorldName";
+    public static final String X = "X";
+    public static final String Y = "Y";
+    public static final String Z = "Z";
   }
 }
