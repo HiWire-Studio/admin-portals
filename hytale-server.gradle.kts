@@ -30,7 +30,17 @@ val hytaleHome: String = if (extra.has("hytaleHome")) {
   }
 }
 
-if (!file(hytaleHome).exists()) {
+val hytaleReferenceRoot = (project.findProperty("mod.hytaleReferenceRoot") as String?)?.let { file(it) }
+val referenceServerJar = hytaleReferenceRoot?.resolve("HytaleServer.jar")
+
+if (hytaleReferenceRoot != null && referenceServerJar?.exists() != true) {
+  throw GradleException(
+    "Failed to find HytaleServer.jar in mod.hytaleReferenceRoot. " +
+    "Currently looking in ${hytaleReferenceRoot.path}"
+  )
+}
+
+if (!file(hytaleHome).exists() && hytaleReferenceRoot == null) {
   throw GradleException(
     "Failed to find Hytale at the expected location. " +
     "Please make sure you have installed the game. " +
@@ -40,7 +50,14 @@ if (!file(hytaleHome).exists()) {
 }
 
 // Export serverJar for use in dependencies
-val serverJar = files("$hytaleHome/install/$patchline/package/game/latest/Server/HytaleServer.jar")
+val installServerJar = file("$hytaleHome/install/$patchline/package/game/latest/Server/HytaleServer.jar")
+if (referenceServerJar == null && !installServerJar.exists()) {
+  throw GradleException(
+    "Failed to find Hytale server jar. " +
+    "Currently looking in ${installServerJar.path}"
+  )
+}
+val serverJar = files(referenceServerJar ?: installServerJar)
 extra["serverJar"] = serverJar
 
 // Updates the manifest.json file with the latest properties.
@@ -61,7 +78,7 @@ tasks.register("updatePluginManifest") {
     val manifestJson = JsonSlurper().parseText(manifestFile.readText()) as MutableMap<String, Any>
     manifestJson["Version"] = projectVersion
     manifestJson["IncludesAssetPack"] = includesAssetPack
-    manifestFile.writeText(JsonOutput.prettyPrint(JsonOutput.toJson(manifestJson)))
+    manifestFile.writeText(JsonOutput.prettyPrint(JsonOutput.toJson(manifestJson)) + "\n")
   }
 }
 
@@ -76,8 +93,19 @@ tasks.register<JavaExec>("runServer") {
   classpath = project.the<SourceSetContainer>()["main"].runtimeClasspath + serverJar
   workingDir = file("${rootProject.projectDir}/run")
   standardInput = System.`in`
+  val assetsPath = file("$hytaleHome/install/$patchline/package/game/latest/Assets.zip")
 
   doFirst {
+    if (!file(hytaleHome).exists()) {
+      throw GradleException(
+        "runServer requires a Hytale install. " +
+        "The expected location can be changed with extra[\"hytaleHome\"] or -PhytaleHome. " +
+        "Currently looking in $hytaleHome"
+      )
+    }
+    if (!assetsPath.exists()) {
+      throw GradleException("runServer could not find Assets.zip at ${assetsPath.path}")
+    }
     workingDir.mkdirs()
   }
 
@@ -92,7 +120,7 @@ tasks.register<JavaExec>("runServer") {
   args = buildList {
     add("--allow-op")
     add("--disable-sentry")
-    add("--assets=$hytaleHome/install/$patchline/package/game/latest/Assets.zip")
+    add("--assets=${assetsPath.path}")
     if (modPaths.isNotEmpty()) {
       add("--mods=${modPaths.joinToString(",")}")
     }
