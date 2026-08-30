@@ -11,7 +11,6 @@ import com.hypixel.hytale.codec.codecs.EnumCodec;
 import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.Store;
 import com.hypixel.hytale.logger.HytaleLogger;
-import com.hypixel.hytale.math.util.ChunkUtil;
 import com.hypixel.hytale.protocol.packets.interface_.CustomPageLifetime;
 import com.hypixel.hytale.protocol.packets.interface_.CustomUIEventBindingType;
 import com.hypixel.hytale.protocol.packets.interface_.Page;
@@ -26,7 +25,6 @@ import com.hypixel.hytale.server.core.ui.builder.EventData;
 import com.hypixel.hytale.server.core.ui.builder.UICommandBuilder;
 import com.hypixel.hytale.server.core.ui.builder.UIEventBuilder;
 import com.hypixel.hytale.server.core.universe.PlayerRef;
-import com.hypixel.hytale.server.core.universe.world.chunk.WorldChunk;
 import com.hypixel.hytale.server.core.universe.world.meta.state.BlockMapMarker;
 import com.hypixel.hytale.server.core.universe.world.meta.state.BlockMapMarkersResource;
 import com.hypixel.hytale.server.core.universe.world.storage.ChunkStore;
@@ -338,25 +336,11 @@ public class PortalConfigurationPage
       return;
     }
 
-    final var chunkRef = blockInfo.getChunkRef();
-    if (!chunkRef.isValid()) {
-      return;
-    }
-
-    WorldChunk worldChunk = blockStore.getComponent(chunkRef, WorldChunk.getComponentType());
-    if (worldChunk == null) {
-      return;
-    }
-
     // Calculate world position
-    int blockIndex = blockInfo.getIndex();
-    Vector3i blockPosition =
-        new Vector3i(
-            ChunkUtil.worldCoordFromLocalCoord(
-                worldChunk.getX(), ChunkUtil.xFromBlockInColumn(blockIndex)),
-            ChunkUtil.yFromBlockInColumn(blockIndex),
-            ChunkUtil.worldCoordFromLocalCoord(
-                worldChunk.getZ(), ChunkUtil.zFromBlockInColumn(blockIndex)));
+    Vector3i blockPosition = new Vector3i();
+    if (!blockInfo.fillWorldPos(blockStore, blockPosition)) {
+      return;
+    }
 
     // Get the markers resource
     BlockMapMarkersResource resource =
@@ -390,8 +374,8 @@ public class PortalConfigurationPage
       resource.removeMarker(blockPosition);
     }
 
-    // Mark chunk as needing save
-    worldChunk.markNeedsSaving();
+    // Mark block as needing save
+    blockInfo.markNeedsSaving(blockStore);
   }
 
   private void handleCommandSave(PageData data) {
