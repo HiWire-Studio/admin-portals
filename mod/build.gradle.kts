@@ -5,19 +5,27 @@ extra["hytaleIncludesAssetPack"] = (project.findProperty("mod.hytaleIncludesAsse
 extra["hytaleLoadUserMods"] = (project.findProperty("mod.hytaleLoadUserMods") as String?)?.toBoolean() ?: false
 project.findProperty("mod.hytaleHome")?.let { extra["hytaleHome"] = it }
 
-apply(from = "../hytale-server.gradle.kts")
+val hytaleVersion: String =
+  project.findProperty("hytaleVersion") as String? ?: "0.7.2"
+
+val includesAssetPack =
+  (project.findProperty("mod.hytaleIncludesAssetPack") as String?)
+    ?.toBoolean() ?: true
+
+val loadUserMods =
+  (project.findProperty("mod.hytaleLoadUserMods") as String?)
+    ?.toBoolean() ?: false
 
 // Retrieve serverJar location from hytale-server.gradle.kts
 val serverJar: FileCollection by extra
 
 dependencies {
-  compileOnly(serverJar)
+  compileOnly("com.hypixel.hytale:Server:$hytaleVersion")
 
   compileOnly(libs.lombok)
   annotationProcessor(libs.lombok)
 
-  // Testing
-  testImplementation(serverJar)
+  testImplementation("com.hypixel.hytale:Server:$hytaleVersion")
   testImplementation(platform(libs.junit.bom))
   testImplementation(libs.junit.jupiter)
   testImplementation(libs.mockito.core)

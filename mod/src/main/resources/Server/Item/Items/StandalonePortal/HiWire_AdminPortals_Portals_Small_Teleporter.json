@@ -1,0 +1,83 @@
+{
+  "TranslationProperties": {
+    "Name": "HiWire.AdminPortals.Items.StandalonePortal_Forgotten_Temple.name",
+    "Description": "HiWire.AdminPortals.Items.StandalonePortal_Forgotten_Temple.description"
+  },
+  "Icon": "Icons/ItemsGenerated/Teleporter.png",
+  "Categories": [
+    "Blocks.Portals"
+  ],
+  "BlockType": {
+    "AmbientSoundEventId": "SFX_Portal_Neutral",
+    "DrawType": "Model",
+    "Material": "Solid",
+    "Opacity": "Solid",
+    "IgnoreSupportWhenPlaced": true,
+    "CustomModel": "Blocks/HiWire_AdminPortals_Small_Teleporter_Base.blockymodel",
+    "CustomModelTexture": [
+      {
+        "Texture": "Blocks/HiWire_AdminPortals_Small_Teleporter_Base.png",
+        "Weight": 1
+      }
+    ],
+    "InteractionHitboxType": "HiWire_AdminPortals_StandalonePortal_Portal_Hitbox",
+    "HitboxType": "HiWire_AdminPortals_StandalonePortal_Portal_Hitbox",
+    "BlockParticleSetId": "Stone",
+    "BlockSoundSetId": "Stone",
+    "VariantRotation": "NESW",
+    "BlockEntity": {},
+    "Gathering": {
+      "Breaking": {
+        "GatherType": "Unbreakable"
+      }
+    },
+    "Interactions": {
+      "Use": {
+        "Cooldown": {
+          "Id": "HiWire_AdminPortals_PortalUseCooldown",
+          "Cooldown": 1
+        },
+        "Interactions": [
+          {
+            "Type": "HiWire_AdminPortals_PortalInteraction"
+          }
+        ]
+      },
+      "Collision": {
+        "Cooldown": {
+          "Id": "HiWire_AdminPortals_PortalUseCooldown",
+          "Cooldown": 1
+        },
+        "Interactions": [
+          {
+            "Type": "HiWire_AdminPortals_PortalInteraction"
+          }
+        ]
+      }
+    },
+    "CubeShadingMode": "Standard",
+    "RequiresAlphaBlending": false,
+    "Particles": [],
+    "ParticleColor": "#4e534c"
+  },
+  "PlayerAnimationsId": "Block",
+  "Tags": {
+    "Type": [
+      "Portal"
+    ]
+  },
+  "Quality": "Tool",
+  "IconProperties": {
+    "Scale": 0.25,
+    "Rotation": [
+      22.5,
+      45,
+      22.5
+    ],
+    "Translation": [
+      3,
+      -42
+    ]
+  },
+  "ItemSoundSetId": "ISS_Blocks_Stone"
+}

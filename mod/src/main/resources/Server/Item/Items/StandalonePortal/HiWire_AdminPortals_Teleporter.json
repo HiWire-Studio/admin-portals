@@ -1,0 +1,118 @@
+{
+  "TranslationProperties": {
+    "Name": "Admin Teleporter",
+    "Description": "HiWire.AdminPortals.Items.StandalonePortal_Forgotten_Temple.description"
+  },
+  "Icon": "Icons/ItemsGenerated/Teleporter.png",
+  "Categories": [
+    "Blocks.Structural"
+  ],
+  "Interactions": {
+    "Secondary": {
+      "Interactions": [
+        "Teleporter_Place"
+      ]
+    }
+  },
+  "BlockType": {
+    "AmbientSoundEventId": "SFX_Portal_Neutral",
+    "DrawType": "Model",
+    "Material": "Solid",
+    "CustomModel": "Blocks/Miscellaneous/Teleporter_Pad.blockymodel",
+    "CustomModelTexture": [
+      {
+        "Texture": "Blocks/Miscellaneous/Teleporter_Pad_Texture.png",
+        "Weight": 1
+      }
+    ],
+    "HitboxType": "Teleporter",
+    "BlockParticleSetId": "Stone",
+    "BlockSoundSetId": "Stone",
+    "VariantRotation": "NESW",
+    "BlockEntity": {},
+    "Gathering": {
+      "Breaking": {
+        "GatherType": "Unbreakable"
+      }
+    },
+    "Interactions": {
+      "Use": {
+        "Cooldown": {
+          "Id": "HiWire_AdminPortals_PortalUseCooldown",
+          "Cooldown": 1
+        },
+        "Interactions": [
+          {
+            "Type": "HiWire_AdminPortals_PortalInteraction"
+          }
+        ]
+      },
+      "CollisionEnter": {
+        "Cooldown": {
+          "Cooldown": 1
+        },
+        "Interactions": [
+          {
+            "Type": "Teleporter",
+            "Particle": "Teleport",
+            "Next": {
+              "Type": "ApplyEffect",
+              "EffectId": "Portal_Teleport",
+              "Effects": {
+                "WorldSoundEventId": "SFX_Potion_Drink_Success"
+              }
+            }
+          }
+        ]
+      },
+      "Collision": {
+        "Cooldown": {
+          "Id": "HiWire_AdminPortals_PortalUseCooldown",
+          "Cooldown": 1
+        },
+        "Interactions": [
+          {
+            "Type": "HiWire_AdminPortals_PortalInteraction"
+          }
+        ]
+      }
+    },
+    "Light": {
+      "Color": "#fff",
+      "Radius": 4
+    },
+    "CubeShadingMode": "Standard",
+    "RequiresAlphaBlending": false,
+    "Particles": [
+      {
+        "SystemId": "Portal_Square_Blue_Fit",
+        "PositionOffset": {
+          "Y": -1,
+          "Z": -0.3
+        },
+        "Color": "#e5c5c5"
+      }
+    ],
+    "ParticleColor": "#4e534c"
+  },
+  "PlayerAnimationsId": "Block",
+  "Tags": {
+    "Type": [
+      "Portal"
+    ]
+  },
+  "Quality": "Tool",
+  "IconProperties": {
+    "Scale": 0.25,
+    "Rotation": [
+      22.5,
+      45,
+      22.5
+    ],
+    "Translation": [
+      3,
+      -42
+    ]
+  },
+  "ItemSoundSetId": "ISS_Blocks_Stone"
+}
