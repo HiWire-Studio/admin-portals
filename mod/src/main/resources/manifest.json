@@ -8,7 +8,7 @@
         }
     ],
     "Main": "studio.hiwire.adminportals.AdminPortalsPlugin",
-    "ServerVersion": "0.6.x",
+    "ServerVersion": "0.7.x",
     "OptionalDependencies": {
         "Hytale:PermissionsModule": "*"
     },
