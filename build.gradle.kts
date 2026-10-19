@@ -1,6 +1,7 @@
 import com.diffplug.gradle.spotless.SpotlessExtension
 import nl.littlerobots.vcu.plugin.resolver.VersionSelectors
 import org.jetbrains.gradle.ext.ProjectSettings
+import org.jetbrains.gradle.ext.delegateActions
 import org.jetbrains.gradle.ext.runConfigurations
 
 plugins {
@@ -40,13 +41,36 @@ subprojects {
     }
 }
 
+// The IDE run configuration reads serverArgs exported by hytale-server.gradle.kts.
+evaluationDependsOn(":mod")
+
 idea {
     project {
         this as ExtensionAware
         configure<ProjectSettings> {
+            // Build and run with IntelliJ itself. When delegated to Gradle, IntelliJ turns the
+            // Application config into a JavaExec task, which drops the compileOnly server jar
+            // from the classpath and reports Stop/Ctrl+C as a failed build.
+            delegateActions {
+                delegateBuildRunToGradle = false
+            }
             runConfigurations {
-                register<org.jetbrains.gradle.ext.Gradle>("HytaleServer") {
-                    taskNames = listOf(":plugin:runServer")
+                // Plain Application run configuration: stopping it is a normal process exit,
+                // unlike a Gradle-backed run where Stop/Ctrl+C is reported as a failed build.
+                register<org.jetbrains.gradle.ext.Application>("HytaleServer") {
+                    val mod = project(":mod")
+                    mainClass = "com.hypixel.hytale.Main"
+                    moduleName = "${rootProject.name}.${mod.name}.main"
+                    // Puts the compileOnly HytaleServer.jar on the runtime classpath.
+                    includeProvidedDependencies = true
+                    workingDirectory = file("run").absolutePath
+                    @Suppress("UNCHECKED_CAST")
+                    programParameters = (mod.extra["serverArgs"] as List<String>).joinToString(" ")
+                    beforeRun {
+                        register<org.jetbrains.gradle.ext.GradleTask>("processResources") {
+                            task = mod.tasks.getByName("processResources")
+                        }
+                    }
                 }
             }
         }

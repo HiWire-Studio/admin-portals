@@ -70,31 +70,34 @@ tasks.named("processResources") {
   dependsOn("updatePluginManifest")
 }
 
+// Server launch arguments, shared by the runServer task and the IDE run configuration.
+val modPaths = mutableListOf<String>()
+if (includesAssetPack) {
+  modPaths += file("src").absolutePath
+}
+if (loadUserMods) {
+  modPaths += "$hytaleHome/UserData/Mods"
+}
+
+val serverArgs: List<String> = buildList {
+  add("--allow-op")
+  add("--disable-sentry")
+  add("--assets=$hytaleHome/install/$patchline/package/game/latest/Assets.zip")
+  if (modPaths.isNotEmpty()) {
+    add("--mods=${modPaths.joinToString(",")}")
+  }
+}
+extra["serverArgs"] = serverArgs
+
 tasks.register<JavaExec>("runServer") {
   group = "application"
   mainClass.set("com.hypixel.hytale.Main")
   classpath = project.the<SourceSetContainer>()["main"].runtimeClasspath + serverJar
   workingDir = file("${rootProject.projectDir}/run")
   standardInput = System.`in`
+  args = serverArgs
 
   doFirst {
     workingDir.mkdirs()
-  }
-
-  val modPaths = mutableListOf<String>()
-  if (includesAssetPack) {
-    modPaths += file("src").absolutePath
-  }
-  if (loadUserMods) {
-    modPaths += "$hytaleHome/UserData/Mods"
-  }
-
-  args = buildList {
-    add("--allow-op")
-    add("--disable-sentry")
-    add("--assets=$hytaleHome/install/$patchline/package/game/latest/Assets.zip")
-    if (modPaths.isNotEmpty()) {
-      add("--mods=${modPaths.joinToString(",")}")
-    }
   }
 }
