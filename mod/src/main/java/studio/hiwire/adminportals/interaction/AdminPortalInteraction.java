@@ -7,7 +7,6 @@ import com.hypixel.hytale.codec.builder.BuilderCodec;
 import com.hypixel.hytale.component.CommandBuffer;
 import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.logger.HytaleLogger;
-import com.hypixel.hytale.math.util.ChunkUtil;
 import com.hypixel.hytale.protocol.InteractionType;
 import com.hypixel.hytale.protocol.SoundCategory;
 import com.hypixel.hytale.server.core.Message;
@@ -18,13 +17,13 @@ import com.hypixel.hytale.server.core.entity.InteractionChain;
 import com.hypixel.hytale.server.core.entity.InteractionContext;
 import com.hypixel.hytale.server.core.entity.entities.Player;
 import com.hypixel.hytale.server.core.inventory.ItemStack;
+import com.hypixel.hytale.server.core.modules.block.BlockModule;
 import com.hypixel.hytale.server.core.modules.interaction.interaction.CooldownHandler;
 import com.hypixel.hytale.server.core.modules.interaction.interaction.config.client.SimpleBlockInteraction;
 import com.hypixel.hytale.server.core.permissions.PermissionsModule;
 import com.hypixel.hytale.server.core.universe.PlayerRef;
 import com.hypixel.hytale.server.core.universe.world.SoundUtil;
 import com.hypixel.hytale.server.core.universe.world.World;
-import com.hypixel.hytale.server.core.universe.world.chunk.WorldChunk;
 import com.hypixel.hytale.server.core.universe.world.storage.ChunkStore;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import java.util.Arrays;
@@ -80,14 +79,17 @@ public class AdminPortalInteraction extends SimpleBlockInteraction {
       return;
     }
 
-    // Get the chunk containing this block
-    WorldChunk chunk = world.getChunkIfInMemory(ChunkUtil.indexChunkFromBlock(pos.x, pos.z));
-    if (chunk == null) {
+    // Get the chunk section containing this block
+    final var chunkStore = world.getChunkStore().getStore();
+    Ref<ChunkStore> sectionRef =
+        world.getChunkStore().getChunkSectionReferenceAtBlock(pos.x, pos.y, pos.z);
+    if (sectionRef == null || !sectionRef.isValid()) {
       return;
     }
 
     // Get the block entity reference for this specific block
-    Ref<ChunkStore> blockEntityRef = chunk.getBlockComponentEntity(pos.x, pos.y, pos.z);
+    Ref<ChunkStore> blockEntityRef =
+        BlockModule.getBlockEntity(chunkStore, sectionRef, pos.x, pos.y, pos.z);
     if (blockEntityRef == null) {
       LOGGER.at(Level.WARNING).log(
           "Block entity missing for portal at position %s - this is a bug, please report it with"
@@ -99,7 +101,6 @@ public class AdminPortalInteraction extends SimpleBlockInteraction {
     }
 
     // Get the config from the block entity (stored in chunk's store)
-    final var chunkStore = chunk.getReference().getStore();
     final var portalConfig =
         chunkStore.getComponent(blockEntityRef, PortalConfigComponent.getComponentType());
 
